@@ -77,7 +77,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mRegisterButton = (Button) findViewById(R.id.email_register_button);
         mLoginButton = (Button) findViewById(R.id.email_sign_in_button);
 
-
+//fff
 //        login_sp = getSharedPreferences("userInfo", 0);
 //        String name=login_sp.getString("USER_NAME", "");
 //        String pwd =login_sp.getString("PASSWORD", "");
