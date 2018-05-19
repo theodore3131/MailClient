@@ -1,53 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".DisplayMessageActivity">
+<LinearLayout
+    android:id="@+id/Subject"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/Subject1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:paddingLeft="10dp"
+        android:text="Subject"
+        android:textSize="25dp"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="49dp" />
+
+    <TextView
+        android:id="@+id/Subject2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:ellipsize="none"
+        android:singleLine="false"
+        android:text="hhhhhh88888oooooooooohhhhhhhhhh"
+
+        android:textSize="25dp"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="49dp" />
+</LinearLayout>
+
 
     <LinearLayout
-        android:id="@+id/first_part"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <EditText
-            android:id="@+id/to_editText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="to"
-            android:inputType="textEmailAddress"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/second_part"
+        android:id="@+id/From"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/first_part">
+        android:layout_below="@+id/Subject">
 
-        <EditText
-            android:id="@+id/subject_editText"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/From1"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:hint="subject"
-            android:inputType="textEmailAddress"/>
+            android:layout_marginLeft="5dp"
+            android:paddingLeft="10dp"
+            android:text="From"
+            android:textSize="20dp"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="49dp" />
 
+        <TextView
+            android:id="@+id/From2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:ellipsize="none"
+            android:singleLine="false"
+            android:text="hhhhhh88888oooooooooohhhhhhhhhh"
+
+            android:textSize="20dp"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="49dp" />
     </LinearLayout>
+
+
 
     <LinearLayout
-        android:layout_below="@+id/second_part"
+        android:id="@+id/Time"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/From">
 
-        <EditText
-            android:id="@+id/content_editText"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/Time1"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:inputType="textEmailAddress"
-            android:hint="content"
-            android:maxLines="128"/>
+            android:layout_marginLeft="5dp"
+            android:paddingLeft="10dp"
+            android:text="Time"
+            android:textSize="20dp"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="49dp" />
+
+        <TextView
+            android:id="@+id/Time2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:ellipsize="none"
+            android:singleLine="false"
+            android:text="hhhhhh88888ooo888ooooooohhhhhhhhhh"
+
+            android:textSize="20dp"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="49dp" />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/Content0"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/Time">
+
+        <TextView
+            android:id="@+id/Content1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:paddingLeft="10dp"
+            android:text="我喜欢徐志伟我喜欢徐志伟我喜欢徐志伟我喜欢徐志伟我喜欢徐志伟我喜欢徐志伟我喜欢徐志伟"
+            android:textSize="20dp"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="49dp" />
+
 
     </LinearLayout>
-
 
 </RelativeLayout>
