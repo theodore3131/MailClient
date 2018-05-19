@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void writeEmail(View view) {
-        Intent intent = new Intent(this,DisplayMessageActivity.class);
+        Intent intent = new Intent(this, SendActivity.class);
         startActivity(intent);
     }
 

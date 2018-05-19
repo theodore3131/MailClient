@@ -70,7 +70,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="登陆"
+                android:text="@string/action_sign_in"
                 android:textStyle="bold" />
 
             <Button
@@ -79,9 +79,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="注册"
+                android:text="@string/action_register"
                 android:textStyle="bold" />
-<!--f55f5-->
+
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
