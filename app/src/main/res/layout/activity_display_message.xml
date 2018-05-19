@@ -100,7 +100,7 @@
             tools:layout_editor_absoluteY="49dp" />
     </LinearLayout>
     <LinearLayout
-        android:id="@+id/Content"
+        android:id="@+id/Content0"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/Time">
