@@ -1,63 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".DisplayMessageActivity">
-
-    <EditText
-        android:id="@+id/editText6"
-        android:layout_width="340dp"
-        android:layout_height="305dp"
-        android:ems="10"
-        android:inputType="textEmailAddress"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="199dp" />
+<LinearLayout
+    android:id="@+id/Subject"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
     <TextView
-        android:id="@+id/textView5"
-        android:layout_width="74dp"
-        android:layout_height="33dp"
-        android:text="Content"
-        android:textSize="18sp"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="163dp" />
-
-    <EditText
-        android:id="@+id/editText5"
-        android:layout_width="219dp"
-        android:layout_height="37dp"
-        android:ems="10"
-        android:inputType="textEmailAddress"
-        tools:layout_editor_absoluteX="93dp"
-        tools:layout_editor_absoluteY="86dp" />
-
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="36dp"
-        android:layout_height="39dp"
-        android:text="TO:"
-        android:textSize="18sp"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="31dp" />
-
-    <EditText
-        android:id="@+id/editText"
-        android:layout_width="216dp"
-        android:layout_height="36dp"
-        android:ems="10"
-        android:inputType="textEmailAddress"
-        tools:layout_editor_absoluteX="96dp"
-        tools:layout_editor_absoluteY="31dp" />
-
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="67dp"
-        android:layout_height="34dp"
+        android:id="@+id/Subject1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:paddingLeft="10dp"
         android:text="Subject"
-        android:textSize="18sp"
+        android:textSize="25dp"
         tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="86dp" />
+        tools:layout_editor_absoluteY="49dp" />
 
-</android.support.constraint.ConstraintLayout>
+    <TextView
+        android:id="@+id/Subject2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:ellipsize="none"
+        android:singleLine="false"
+        android:text="hhhhhh88888oooooooooohhhhhhhhhh"
+
+        android:textSize="25dp"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="49dp" />
+</LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/From"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/Subject">
+
+        <TextView
+            android:id="@+id/From1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:paddingLeft="10dp"
+            android:text="From"
+            android:textSize="20dp"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="49dp" />
+
+        <TextView
+            android:id="@+id/From2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:ellipsize="none"
+            android:singleLine="false"
+            android:text="hhhhhh88888oooooooooohhhhhhhhhh"
+
+            android:textSize="20dp"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="49dp" />
+    </LinearLayout>
+
+
+
+    <LinearLayout
+        android:id="@+id/Time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/From">
+
+        <TextView
+            android:id="@+id/Time1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:paddingLeft="10dp"
+            android:text="Time"
+            android:textSize="20dp"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="49dp" />
+
+        <TextView
+            android:id="@+id/Time2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:ellipsize="none"
+            android:singleLine="false"
+            android:text="hhhhhh88888ooo888ooooooohhhhhhhhhh"
+
+            android:textSize="20dp"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="49dp" />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/Content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/Time">
+
+        <TextView
+            android:id="@+id/Content1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:paddingLeft="10dp"
+            android:text="我喜欢徐志伟我喜欢徐志伟我喜欢徐志伟我喜欢徐志伟我喜欢徐志伟我喜欢徐志伟我喜欢徐志伟"
+            android:textSize="20dp"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="49dp" />
+
+
+    </LinearLayout>
+
+</RelativeLayout>
