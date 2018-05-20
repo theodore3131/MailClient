@@ -105,6 +105,7 @@ public class SendActivity extends AppCompatActivity{
                                     ObjectOutputStream oos = new ObjectOutputStream(os);
                                     Timestamp time = new Timestamp(new Date().getTime());
                                     mail.setTime(time);
+                                    mail.setSendStat(1);
                                     oos.writeObject(mail);
                                     socket.close();
                                 } catch (IOException e) {
