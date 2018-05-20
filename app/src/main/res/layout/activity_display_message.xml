@@ -4,11 +4,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/DisplayMessageActivity"
     tools:context=".DisplayMessageActivity">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/receive_toolbar"
+        android:background="?attr/colorPrimary"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Dark"
+        >
+    </android.support.v7.widget.Toolbar>
+
 <LinearLayout
     android:id="@+id/Subject"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/receive_toolbar"
+    android:divider="@color/colorAccent"
+    android:showDividers="end">
 
     <TextView
         android:id="@+id/Subject1"
@@ -20,6 +34,28 @@
         android:textSize="25dp"
         tools:layout_editor_absoluteX="16dp"
         tools:layout_editor_absoluteY="49dp" />
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_weight="1"
+        android:background="?android:attr/listDivider"
+        android:visibility="visible" />
+
+    <View
+        android:id="@+id/divider2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_weight="1"
+        android:background="?android:attr/listDivider" />
+
+    <View
+        android:id="@+id/divider4"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:layout_weight="1"
+        android:background="?android:attr/listDivider" />
 
     <TextView
         android:id="@+id/Subject2"
@@ -40,7 +76,10 @@
         android:id="@+id/From"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/Subject">
+        android:layout_below="@+id/Subject"
+        android:orientation="horizontal"
+        style="?android:buttonBarStyle"
+        android:dividerPadding="15dp">
 
         <TextView
             android:id="@+id/From1"
@@ -118,5 +157,7 @@
 
 
     </LinearLayout>
+
+
 
 </RelativeLayout>
