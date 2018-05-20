@@ -1,13 +1,44 @@
 package JavaBean.Entity;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 
-public class Mail {
+public class Mail implements Serializable {
 
     private int mail_id;
     private String sender;
+    private String to;
+
+    public String getTo() {
+        return to;
+    }
+
+    public void setTo(String to) {
+        this.to = to;
+    }
+
+    public String getFrom() {
+        return from;
+    }
+
+    public void setFrom(String from) {
+        this.from = from;
+    }
+
+    private String from;
+
+
+    public String[] getToList() {
+        return toList;
+    }
+
+    public void setToList(String[] toList) {
+        this.toList = toList;
+    }
+
     private String receiver;
     private String subject;
+    private String[] toList;
     private String content;
     private Timestamp time;
     private int readStat;
