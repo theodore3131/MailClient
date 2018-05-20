@@ -17,21 +17,80 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import JavaBean.Entity.Mail;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
         private ListView listView;
+        private Socket socket;
+        private List<Mail> mail;
+        private  ExecutorService mThreadPool ;
+    // 利用线程池直接开启一个线程 & 执行该线程
+
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
 
         setContentView(R.layout.activity_main);
+        mThreadPool= Executors.newCachedThreadPool();
+        try {
+            socket = new Socket("47.106.157.18", 9091);
+        }catch (IOException e){}
+        mThreadPool.execute(new Runnable(){
+            @Override
+            public void run() {
+                try {
 
+                    // 创建Socket对象 & 指定服务端的IP 及 端口号
 
-        listView=(ListView) findViewById(R.id.test_lv);
+                    OutputStream os = socket.getOutputStream();
+                    byte[] array = "list".getBytes();
+                    os.write(array);
+                }catch (IOException e){
+
+                }
+
+            }
+        });
+        mThreadPool.execute(new Runnable(){
+
+            @Override
+            public void run() {
+                try {
+                    InputStream ips = socket.getInputStream();
+                    ObjectInputStream ois = new ObjectInputStream(ips);
+                    mail = new ArrayList<>();
+                    mail = (List<Mail>) ois.readObject();
+                    socket.close();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        listView =(ListView) findViewById(R.id.test_lv);
         listView.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, getData() ));
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
                                             @Override
@@ -42,8 +101,9 @@ public class MainActivity extends AppCompatActivity
                                             }
                                         }
 
-
         );
+
+
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -77,12 +137,13 @@ public class MainActivity extends AppCompatActivity
     }
 
     private List<String> getData(){
-
         List<String> data = new ArrayList<String>();
-        data.add("测试数据1");
-        data.add("测试数据2");
-        data.add("测试数据3");
-        data.add("测试数据4");
+        for(int i=0;i<mail.size();i++){
+            data.add(mail.get(i).getReceiver());
+        }
+
+
+
 
         return data;
     }
