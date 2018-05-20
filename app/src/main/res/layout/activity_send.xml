@@ -27,8 +27,10 @@
             android:id="@+id/to_editText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="to"
-            android:inputType="textEmailAddress"/>
+            android:hint="@string/mail_to"
+            android:inputType="textEmailAddress"
+            android:maxLines="1"
+            android:singleLine="true"/>
 
     </LinearLayout>
 
@@ -42,8 +44,10 @@
             android:id="@+id/subject_editText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="subject"
-            android:inputType="textEmailAddress"/>
+            android:hint="@string/mail_subject"
+            android:maxLines="1"
+            android:singleLine="true"
+            />
 
     </LinearLayout>
 
@@ -56,9 +60,9 @@
             android:id="@+id/content_editText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textEmailAddress"
-            android:hint="content"
-            android:singleLine="false"/>
+            android:hint="@string/mail_content"
+            android:inputType="textMultiLine"
+            />
 
     </LinearLayout>
 
