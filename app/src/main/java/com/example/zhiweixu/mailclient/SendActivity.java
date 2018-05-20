@@ -3,15 +3,39 @@ package com.example.zhiweixu.mailclient;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+import android.os.Handler;
+import android.os.Message;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import JavaBean.Entity.Mail;
 
-public class SendActivity extends AppCompatActivity {
+public class SendActivity extends AppCompatActivity{
+
+    private BufferedReader in = null;
+    private PrintWriter out = null;
+    private Mail mail = null;
+    private Socket socket;
+    private ExecutorService mThreadPool;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -52,7 +76,7 @@ public class SendActivity extends AppCompatActivity {
                     case R.id.action_send:
 
                         // 如果是发送邮件, 则将数据发送到服务器
-                        Mail mail = new Mail();
+
                         EditText to_edittext = findViewById(R.id.to_editText);
                         String receiver = to_edittext.getText().toString();
 
@@ -62,10 +86,48 @@ public class SendActivity extends AppCompatActivity {
                         EditText content_edittext = findViewById(R.id.content_editText);
                         String content = content_edittext.getText().toString();
 
+                        // 设置输入文本的信息
+                        mail = new Mail();
                         mail.setReceiver(receiver);
                         mail.setSubject(subject);
                         mail.setContent(content);
-                        String mess = "" + receiver + "," + subject + "," + content;
+
+                        // 初始化线程池
+                        mThreadPool = Executors.newCachedThreadPool();
+                        // 利用线程池直接开启一个线程 & 执行该线程
+                        mThreadPool.execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    // 创建Socket对象 & 指定服务端的IP 及 端口号
+                                    Socket socket = new Socket("47.106.157.18", 9090);
+                                    OutputStream os = socket.getOutputStream();
+                                    ObjectOutputStream oos = new ObjectOutputStream(os);
+                                    Timestamp time = new Timestamp(new Date().getTime());
+                                    mail.setTime(time);
+                                    oos.writeObject(mail);
+                                    socket.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+
+                            }
+                        });
+
+//                        try {
+//                            Socket socket = new Socket("127.0.0.1", 9090);
+//                            OutputStream os = socket.getOutputStream();
+//                            ObjectOutputStream oos = new ObjectOutputStream(os);
+//                            Timestamp time = new Timestamp(new Date().getTime());
+//                            mail.setTime(time);
+//                            oos.writeObject(mail);
+//                            socket.close();
+//                        }catch(IOException e){
+//                            e.printStackTrace();
+//                        }
+
+
+                                String mess = "" + receiver + "," + subject + "," + content;
                         Toast.makeText(SendActivity.this, mess, Toast.LENGTH_SHORT).show();
                         break;
                 }
