@@ -4,17 +4,22 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 
 public class Mail implements Serializable {
-
+    private static final long serialVersionUID = 1L;
     private int mail_id;
-    private String sender;
+    private String from;
     private String to;
-
-    public String getTo() {
-        return to;
+    private String[] toList;
+    private String subject;
+    private String content;
+    private Timestamp time;
+    private int readStat;
+    private int sendStat;
+    public int getMail_id() {
+        return mail_id;
     }
 
-    public void setTo(String to) {
-        this.to = to;
+    public void setMail_id(int mail_id) {
+        this.mail_id = mail_id;
     }
 
     public String getFrom() {
@@ -25,8 +30,13 @@ public class Mail implements Serializable {
         this.from = from;
     }
 
-    private String from;
+    public String getTo() {
+        return to;
+    }
 
+    public void setTo(String to) {
+        this.to = to;
+    }
 
     public String[] getToList() {
         return toList;
@@ -34,46 +44,6 @@ public class Mail implements Serializable {
 
     public void setToList(String[] toList) {
         this.toList = toList;
-    }
-
-    private String receiver;
-    private String subject;
-    private String[] toList;
-    private String content;
-    private Timestamp time;
-    private int readStat;
-    private int sendStat;
-
-    public int getMail_id() {
-        return mail_id;
-    }
-
-    public void setMail_id(int mail_id) {
-        this.mail_id = mail_id;
-    }
-
-    public String getSender() {
-        return sender;
-    }
-
-    public void setSender(String sender) {
-        this.sender = sender;
-    }
-
-    public String getReceiver() {
-        return receiver;
-    }
-
-    public void setReceiver(String receiver) {
-        this.receiver = receiver;
-    }
-
-    public String getSubject() {
-        return subject;
-    }
-
-    public void setSubject(String subject) {
-        this.subject = subject;
     }
 
     public String getContent() {
@@ -92,6 +62,14 @@ public class Mail implements Serializable {
         this.time = time;
     }
 
+    public String getSubject() {
+        return subject;
+    }
+
+    public  void setSubject(String subject) {
+        this.subject = subject;
+    }
+
     public int getReadStat() {
         return readStat;
     }
@@ -106,5 +84,15 @@ public class Mail implements Serializable {
 
     public void setSendStat(int sendStat) {
         this.sendStat = sendStat;
+    }
+
+    public Mail() {
+    }
+
+    public Mail(String from, String[] toList, String subject, String content) {
+        this.from = from;
+        this.toList = toList;
+        this.subject = subject;
+        this.content = content;
     }
 }

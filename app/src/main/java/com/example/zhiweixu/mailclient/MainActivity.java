@@ -1,9 +1,13 @@
 package com.example.zhiweixu.mailclient;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -19,6 +23,9 @@ import android.widget.ListView;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -36,60 +43,33 @@ import java.util.concurrent.Executors;
 import JavaBean.Entity.Mail;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener{
         private ListView listView;
         private Socket socket;
         private List<Mail> mail;
         private  ExecutorService mThreadPool ;
     // 利用线程池直接开启一个线程 & 执行该线程
 
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
         setContentView(R.layout.activity_main);
-        mThreadPool= Executors.newCachedThreadPool();
+//        MainActivity mainActivity = new MainActivity();
+
+
+        Thread a = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mail = getMails();
+            }
+        });
+        a.start();
         try {
-            socket = new Socket("47.106.157.18", 9091);
-        }catch (IOException e){}
-        mThreadPool.execute(new Runnable(){
-            @Override
-            public void run() {
-                try {
-
-                    // 创建Socket对象 & 指定服务端的IP 及 端口号
-
-                    OutputStream os = socket.getOutputStream();
-                    byte[] array = "list".getBytes();
-                    os.write(array);
-                }catch (IOException e){
-
-                }
-
-            }
-        });
-        mThreadPool.execute(new Runnable(){
-
-            @Override
-            public void run() {
-                try {
-                    InputStream ips = socket.getInputStream();
-                    ObjectInputStream ois = new ObjectInputStream(ips);
-                    mail = new ArrayList<>();
-                    mail = (List<Mail>) ois.readObject();
-                    socket.close();
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
+            a.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println(mail.size());
         listView =(ListView) findViewById(R.id.test_lv);
         listView.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, getData() ));
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
@@ -103,12 +83,10 @@ public class MainActivity extends AppCompatActivity
 
         );
 
-
+        System.out.println(mail.size());
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-
 
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -131,19 +109,41 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
 
-
-
-
     }
 
+
+
+    private List<Mail> getMails() {
+        List<Mail> mails = new ArrayList<>();
+        try {
+            Socket socket = new Socket("47.106.157.18", 9091);
+            InputStream ins = socket.getInputStream();
+            OutputStream os = socket.getOutputStream();
+
+//                    BufferedReader brd = new BufferedReader(new InputStreamReader(ins));
+            ObjectOutputStream oos = new ObjectOutputStream(os);
+            ObjectInputStream ois=new ObjectInputStream(ins);
+
+            String str = "list";
+            oos.writeObject(str);
+            oos.flush();
+
+            System.out.println("client sent list");
+            mails = (List<Mail>)ois.readObject();
+//                    System.out.println(mail.size());
+            ois.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return mails;
+    }
     private List<String> getData(){
         List<String> data = new ArrayList<String>();
         for(int i=0;i<mail.size();i++){
-            data.add(mail.get(i).getReceiver());
+            data.add(mail.get(i).getTo());
         }
-
-
-
 
         return data;
     }

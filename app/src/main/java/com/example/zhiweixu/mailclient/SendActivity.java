@@ -27,6 +27,14 @@ import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.sql.Timestamp;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import JavaBean.Entity.Mail;
 
 public class SendActivity extends AppCompatActivity{
@@ -79,19 +87,16 @@ public class SendActivity extends AppCompatActivity{
 
                         EditText to_edittext = findViewById(R.id.to_editText);
                         String receiver = to_edittext.getText().toString();
-
+                        String[] receiverList = receiver.split(";");
                         EditText subject_edittext = findViewById(R.id.subject_editText);
                         String subject = subject_edittext.getText().toString();
 
                         EditText content_edittext = findViewById(R.id.content_editText);
                         String content = content_edittext.getText().toString();
 
-                        // 设置输入文本的信息
-                        mail = new Mail();
-                        mail.setReceiver(receiver);
-                        mail.setSubject(subject);
-                        mail.setContent(content);
-
+//                        // 设置输入文本的信息
+                        String from = "dbg@bro.com";
+                        mail = new Mail(from,receiverList,subject,content);
                         // 初始化线程池
                         mThreadPool = Executors.newCachedThreadPool();
                         // 利用线程池直接开启一个线程 & 执行该线程
@@ -130,10 +135,33 @@ public class SendActivity extends AppCompatActivity{
 
                                 String mess = "" + receiver + "," + subject + "," + content;
                         Toast.makeText(SendActivity.this, mess, Toast.LENGTH_SHORT).show();
+                        // 初始化线程池
+                        mThreadPool = Executors.newCachedThreadPool();
+                        // 利用线程池直接开启一个线程 & 执行该线程
+                        mThreadPool.execute(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                try {
+
+                                    // 创建Socket对象 & 指定服务端的IP 及 端口号
+                                    Socket socket = new Socket("47.106.157.18", 9090);
+
+                                    // 判断客户端和服务器是否连接成功
+                                    System.out.println(socket.isConnected());
+
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+
+                            }
+                        });
                         break;
                 }
                 return false;
             }
         });
+
+
     }
 }
