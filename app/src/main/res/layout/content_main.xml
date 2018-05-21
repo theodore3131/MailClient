@@ -12,7 +12,9 @@
         android:id="@+id/test_lv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:divider="@null">
+
+        android:divider="@color/colorBule"
+        android:dividerHeight="1dp">
     </ListView>
 
 </android.support.constraint.ConstraintLayout>

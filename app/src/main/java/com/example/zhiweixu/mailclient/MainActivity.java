@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -34,13 +35,18 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import JavaBean.Entity.Mail;
+import JavaBean.Entity.MailAdapter;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
         private ListView listView;
         private Socket socket;
         private List<Mail> mail;
-        private  ExecutorService mThreadPool ;
+        private List<Mail> mails;
+    private static final int TIME_INTERVAL = 2000; // # milliseconds, desired time passed between two back presses.
+    private long mBackPressed;
+
+    private  ExecutorService mThreadPool ;
     // 利用线程池直接开启一个线程 & 执行该线程
 
 
@@ -53,49 +59,79 @@ public class MainActivity extends AppCompatActivity
 
         setContentView(R.layout.activity_main);
         mThreadPool= Executors.newCachedThreadPool();
-        try {
-            socket = new Socket("47.106.157.18", 9091);
-        }catch (IOException e){}
+
+
         mThreadPool.execute(new Runnable(){
             @Override
             public void run() {
                 try {
 
                     // 创建Socket对象 & 指定服务端的IP 及 端口号
+                    socket = new Socket("47.106.157.18", 9091);
 
                     OutputStream os = socket.getOutputStream();
+					ObjectOutputStream oos = new ObjectOutputStream(os);
                     byte[] array = "list".getBytes();
-                    os.write(array);
-                }catch (IOException e){
+                    oos.writeObject(array);
 
-                }
-
-            }
-        });
-        mThreadPool.execute(new Runnable(){
-
-            @Override
-            public void run() {
-                try {
                     InputStream ips = socket.getInputStream();
                     ObjectInputStream ois = new ObjectInputStream(ips);
                     mail = new ArrayList<>();
-                    mail = (List<Mail>) ois.readObject();
-                    socket.close();
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
+                    mails = (List<Mail>) ois.readObject();
+                    ois.close();
+
+                    socket.close();                }catch (IOException e){
+
+                }catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
+
             }
         });
-
+//        mThreadPool.execute(new Runnable(){
+//
+//            @Override
+//            public void run() {
+//                try {
+//                    socket = new Socket("localhost", 9091);
+//                    InputStream ips = socket.getInputStream();
+//                    ObjectInputStream ois = new ObjectInputStream(ips);
+//                    mail = new ArrayList<>();
+//                    mail = (List<Mail>) ois.readObject();
+//                    ois.close();
+//                    socket.close();
+//                } catch (ClassNotFoundException e) {
+//                    e.printStackTrace();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
+        List<Mail> mails=new ArrayList<>();
+        for(int i=0;i<20;i++){
+            Mail mai=new Mail();
+            mai.setMail_id(i);
+            mai.setSubject(i+" "+i);
+            Timestamp time = new Timestamp(new Date().getTime());
+            mai.setTime(time);
+            mai.setContent("hhhhhhhhhh"+i);
+            mails.add(mai);
+        }
         listView =(ListView) findViewById(R.id.test_lv);
-        listView.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, getData() ));
+
+        MailAdapter adapter=new MailAdapter(MainActivity.this,R.layout.mail_item,mails);
+        listView.setAdapter(adapter);
+
+   //     listView.setAdapter(new ArrayAdapter<Mail>(this, android.R.layout.simple_list_item_1, mails ));
+
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
                                             @Override
                                             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                                                 Intent intent =new Intent(MainActivity.this, DisplayMessageActivity.class);
+                                                Bundle bundle=new Bundle();
+
+                                                bundle.putString("name",id+" ");
+                                                intent.putExtras(bundle);
                                                 startActivity(intent);
                                                 //我们需要的内容，跳转页面或显示详细信息
                                             }
@@ -136,11 +172,14 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    private List<String> getData(){
-        List<String> data = new ArrayList<String>();
-        for(int i=0;i<mail.size();i++){
-            data.add(mail.get(i).getReceiver());
+    private List<Mail> getData(){
+        List<Mail> data = new ArrayList<Mail>();
+        for(int i=0;i<mails.size();i++){
+            data.add(mails.get(i));
         }
+//        for(int i=0;i<mail.size();i++){
+//            data.add(mail.get(i).getReceiver());
+//        }
 
 
 
@@ -154,12 +193,20 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
+//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+//        if (drawer.isDrawerOpen(GravityCompat.START)) {
+//            drawer.closeDrawer(GravityCompat.START);
+//        } else {
+//            super.onBackPressed();
+//        }
+        if (mBackPressed + TIME_INTERVAL > System.currentTimeMillis())
+        {
             super.onBackPressed();
+            return;
         }
+        else { Toast.makeText(getBaseContext(), "Tap back button in order to exit", Toast.LENGTH_SHORT).show(); }
+
+        mBackPressed = System.currentTimeMillis();
     }
 
     @Override

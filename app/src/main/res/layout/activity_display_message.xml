@@ -14,69 +14,56 @@
         android:layout_height="?attr/actionBarSize"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Dark"
         >
-    </android.support.v7.widget.Toolbar>
+</android.support.v7.widget.Toolbar>
 
 <LinearLayout
-    android:id="@+id/Subject"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_below="@+id/receive_toolbar"
-    android:divider="@color/colorAccent"
-    android:showDividers="end">
-
-    <TextView
-        android:id="@+id/Subject1"
-        android:layout_width="wrap_content"
+        android:id="@+id/Subject"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="5dp"
-        android:paddingLeft="10dp"
-        android:text="Subject"
-        android:textSize="25dp"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="49dp" />
+        android:layout_below="@+id/receive_toolbar">
 
+        <TextView
+            android:id="@+id/Subject1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:paddingLeft="10dp"
+            android:text="Subject"
+            android:textSize="25dp"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="49dp"/>
+
+
+
+
+        <TextView
+            android:id="@+id/Subject2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:ellipsize="none"
+            android:singleLine="false"
+            android:layout_gravity="left"
+            android:text="hhhhhhhhhh"
+
+            android:textSize="25dp"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="49dp" />
+    </LinearLayout>
     <View
         android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_weight="1"
-        android:background="?android:attr/listDivider"
-        android:visibility="visible" />
-
-    <View
-        android:id="@+id/divider2"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_weight="1"
+        android:backgroundTint="@color/colorBule"
+        android:layout_below="@+id/Subject"
         android:background="?android:attr/listDivider" />
-
-    <View
-        android:id="@+id/divider4"
-        android:layout_width="match_parent"
-        android:layout_height="10dp"
-        android:layout_weight="1"
-        android:background="?android:attr/listDivider" />
-
-    <TextView
-        android:id="@+id/Subject2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:ellipsize="none"
-        android:singleLine="false"
-        android:text="hhhhhh88888oooooooooohhhhhhhhhh"
-
-        android:textSize="25dp"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="49dp" />
-</LinearLayout>
-
 
     <LinearLayout
         android:id="@+id/From"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/Subject"
+        android:layout_below="@+id/divider"
         android:orientation="horizontal"
         style="?android:buttonBarStyle"
         android:dividerPadding="15dp">
@@ -92,6 +79,8 @@
             tools:layout_editor_absoluteX="16dp"
             tools:layout_editor_absoluteY="49dp" />
 
+
+
         <TextView
             android:id="@+id/From2"
             android:layout_width="wrap_content"
@@ -106,13 +95,20 @@
             tools:layout_editor_absoluteY="49dp" />
     </LinearLayout>
 
-
+    <View
+        android:id="@+id/divider2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_weight="1"
+        android:backgroundTint="@color/colorBule"
+        android:layout_below="@+id/From"
+        android:background="?android:attr/listDivider" />
 
     <LinearLayout
         android:id="@+id/Time"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/From">
+        android:layout_below="@+id/divider2">
 
         <TextView
             android:id="@+id/Time1"
@@ -137,12 +133,22 @@
             android:textSize="20dp"
             tools:layout_editor_absoluteX="16dp"
             tools:layout_editor_absoluteY="49dp" />
+
     </LinearLayout>
+
+    <View
+        android:id="@+id/divider3"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_weight="1"
+        android:backgroundTint="@color/colorPrimaryDark"
+        android:layout_below="@+id/Time"
+        android:background="?android:attr/listDivider" />
     <LinearLayout
         android:id="@+id/Content0"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/Time">
+        android:layout_below="@+id/divider3">
 
         <TextView
             android:id="@+id/Content1"
