@@ -2,8 +2,11 @@ package com.example.zhiweixu.mailclient;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.view.KeyEvent;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -39,9 +42,9 @@ import JavaBean.Entity.MailAdapter;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-        private ListView listView;
+        private  ListView listView;
         private Socket socket;
-        private List<Mail> mail;
+
         private List<Mail> mails;
     private static final int TIME_INTERVAL = 2000; // # milliseconds, desired time passed between two back presses.
     private long mBackPressed;
@@ -58,36 +61,46 @@ public class MainActivity extends AppCompatActivity
 
 
         setContentView(R.layout.activity_main);
-        mThreadPool= Executors.newCachedThreadPool();
 
 
-        mThreadPool.execute(new Runnable(){
+
+
+        Thread a = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-
-                    // 创建Socket对象 & 指定服务端的IP 及 端口号
-                    socket = new Socket("47.106.157.18", 9091);
-
+                    Socket socket = new Socket("47.106.157.18", 9091);
+                    InputStream ins = socket.getInputStream();
                     OutputStream os = socket.getOutputStream();
-					ObjectOutputStream oos = new ObjectOutputStream(os);
-                    byte[] array = "list".getBytes();
-                    oos.writeObject(array);
 
-                    InputStream ips = socket.getInputStream();
-                    ObjectInputStream ois = new ObjectInputStream(ips);
-                    mail = new ArrayList<>();
-                    mails = (List<Mail>) ois.readObject();
+                    BufferedReader brd = new BufferedReader(new InputStreamReader(ins));
+                    ObjectOutputStream oos = new ObjectOutputStream(os);
+                    ObjectInputStream ois=new ObjectInputStream(ins);
+
+                    String str = "list";
+                    oos.writeObject(str);
+                    oos.flush();
+
+                    System.out.println("client sent list");
+                    mails = (List<Mail>)ois.readObject();
+                    System.out.println(mails.size());
                     ois.close();
-
-                    socket.close();                }catch (IOException e){
-
-                }catch (ClassNotFoundException e) {
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
-
             }
         });
+        a.start();
+        try {
+            a.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
+
 //        mThreadPool.execute(new Runnable(){
 //
 //            @Override
@@ -107,16 +120,16 @@ public class MainActivity extends AppCompatActivity
 //                }
 //            }
 //        });
-        List<Mail> mails=new ArrayList<>();
-        for(int i=0;i<20;i++){
-            Mail mai=new Mail();
-            mai.setMail_id(i);
-            mai.setSubject(i+" "+i);
-            Timestamp time = new Timestamp(new Date().getTime());
-            mai.setTime(time);
-            mai.setContent("hhhhhhhhhh"+i);
-            mails.add(mai);
-        }
+//        List<Mail> mails=new ArrayList<>();
+//        for(int i=0;i<20;i++){
+//            Mail mai=new Mail();
+//            mai.setMail_id(i);
+//            mai.setSubject(i+" "+i);
+//            Timestamp time = new Timestamp(new Date().getTime());
+//            mai.setTime(time);
+//            mai.setContent("hhhhhhhhhh"+i);
+//            mails.add(mai);
+//        }
         listView =(ListView) findViewById(R.id.test_lv);
 
         MailAdapter adapter=new MailAdapter(MainActivity.this,R.layout.mail_item,mails);
@@ -129,8 +142,20 @@ public class MainActivity extends AppCompatActivity
                                             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                                                 Intent intent =new Intent(MainActivity.this, DisplayMessageActivity.class);
                                                 Bundle bundle=new Bundle();
+                                                String subject=mails.get((int)id).getSubject();
+                                                int mail_id= mails.get((int)id).getMail_id();
+                                                String sender=mails.get((int)id).getFrom();
+                                                String to=mails.get((int)id).getTo();
+                                                String content=mails.get((int)id).getContent();
+                                                Timestamp time=mails.get((int)id).getTime();
 
-                                                bundle.putString("name",id+" ");
+                                                bundle.putString("subject",subject);
+                                                bundle.putInt("mail_id",mail_id);
+                                                bundle.putString("sender",sender);
+                                                bundle.putString("to",to);
+                                                bundle.putString("content",content);
+                                                bundle.putString("time",time.toString());
+
                                                 intent.putExtras(bundle);
                                                 startActivity(intent);
                                                 //我们需要的内容，跳转页面或显示详细信息
@@ -172,26 +197,59 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    private List<Mail> getData(){
-        List<Mail> data = new ArrayList<Mail>();
-        for(int i=0;i<mails.size();i++){
-            data.add(mails.get(i));
-        }
-//        for(int i=0;i<mail.size();i++){
-//            data.add(mail.get(i).getReceiver());
+//    private List<Mail> getData(){
+//        List<Mail> data = new ArrayList<Mail>();
+//        for(int i=0;i<mails.size();i++){
+//            data.add(mails.get(i));
 //        }
-
-
-
-
-        return data;
-    }
+////        for(int i=0;i<mail.size();i++){
+////            data.add(mail.get(i).getReceiver());
+////        }
+//
+//
+//
+//
+//        return data;
+//    }
     public void writeEmail(View view) {
         Intent intent = new Intent(this, SendActivity.class);
         startActivity(intent);
     }
 
+
+    private static boolean isExit = false;
+    Handler mHandler = new Handler() {
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            isExit = false;
+        }
+    };
+
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            exit();
+            return false;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    private void exit() {
+        if (!isExit) {
+            isExit = true;
+            Toast.makeText(getApplicationContext(), "再按一次退出程序",
+                    Toast.LENGTH_SHORT).show();
+            // 利用handler延迟发送更改状态信息
+            mHandler.sendEmptyMessageDelayed(0, 2000);
+        } else {
+            finish();
+            System.exit(0);
+        }
+    }
     @Override
+
+
     public void onBackPressed() {
 //        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 //        if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -199,14 +257,7 @@ public class MainActivity extends AppCompatActivity
 //        } else {
 //            super.onBackPressed();
 //        }
-        if (mBackPressed + TIME_INTERVAL > System.currentTimeMillis())
-        {
-            super.onBackPressed();
-            return;
-        }
-        else { Toast.makeText(getBaseContext(), "Tap back button in order to exit", Toast.LENGTH_SHORT).show(); }
 
-        mBackPressed = System.currentTimeMillis();
     }
 
     @Override

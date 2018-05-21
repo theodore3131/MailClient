@@ -24,12 +24,25 @@ public class DisplayMessageActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_message);
+
         Intent intent = getIntent();
         Bundle bundle=this.getIntent().getExtras();
-        String name=bundle.getString("name");
-        Log.i("获取到的name值",name);
+        String subject=bundle.getString("subject");
         TextView subject2=findViewById(R.id.Subject2);
-        subject2.setText(name);
+        subject2.setText(subject);
+
+        String from=bundle.getString("sender");
+        TextView from2=findViewById(R.id.From2);
+        from2.setText(from);
+
+        String time=bundle.getString("time");
+        TextView time2=findViewById(R.id.Time2);
+        time2.setText(time);
+
+        String content=bundle.getString("content");
+        TextView content1=findViewById(R.id.Content1);
+        content1.setText(content);
+
 
         Toolbar toolbar = findViewById(R.id.receive_toolbar);
         setSupportActionBar(toolbar);
@@ -52,8 +65,9 @@ public class DisplayMessageActivity extends AppCompatActivity {
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                Intent intent =new Intent(DisplayMessageActivity.this, MainActivity.class);
-                startActivity(intent);
+//                Intent intent =new Intent(DisplayMessageActivity.this, MainActivity.class);
+//                startActivity(intent);
+                finish();
                 return false;
             }
         });

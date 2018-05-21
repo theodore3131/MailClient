@@ -5,6 +5,9 @@ import java.sql.Timestamp;
 
 public class Mail implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
+
     private int mail_id;
     private String sender;
     private String to;
@@ -107,4 +110,5 @@ public class Mail implements Serializable {
     public void setSendStat(int sendStat) {
         this.sendStat = sendStat;
     }
+
 }
