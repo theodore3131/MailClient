@@ -1,5 +1,6 @@
 package com.example.zhiweixu.mailclient;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -30,6 +31,7 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.net.Socket;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -42,8 +44,8 @@ import JavaBean.Entity.Mail;
 import JavaBean.Entity.MailAdapter;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
-
+        implements NavigationView.OnNavigationItemSelectedListener ,Serializable{
+    static Activity ActivityA;
     ListView listView;
     Socket socket;
     InputStream ins;
@@ -55,11 +57,16 @@ public class MainActivity extends AppCompatActivity
     private static final int TIME_INTERVAL = 2000; // # milliseconds, desired time passed between two back presses.
     private SwipeRefreshLayout swipeRefreshLayout;
 
+    private String command ;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        if(getIntent()!=null) command = getIntent().getStringExtra("commandExtra");
+        if(command==null) command = "list";
+        System.out.println(command);
+        ActivityA=this;
         Thread a = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -94,8 +101,7 @@ public class MainActivity extends AppCompatActivity
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-                        mails = getData();
-                        mHandler.sendEmptyMessage(1);
+                        autoRefresh();
                     }
                 }).start();
             }
@@ -122,9 +128,11 @@ public class MainActivity extends AppCompatActivity
                                                 bundle.putString("to",to);
                                                 bundle.putString("content",content);
                                                 bundle.putString("time",time.toString());
+  //                                              bundle.putSerializable("MainActivity",MainActivity.this);
 
                                                 intent.putExtras(bundle);
                                                 startActivity(intent);
+
                                                 //我们需要的内容，跳转页面或显示详细信息
                                             }
                                         }
@@ -177,7 +185,9 @@ public class MainActivity extends AppCompatActivity
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            String str = "list";
+
+            //根据参数做出不同的变化
+            String str = command;
             oos.writeObject(str);
             oos.flush();
 
@@ -202,6 +212,17 @@ public class MainActivity extends AppCompatActivity
         Intent intent = new Intent(this, SendActivity.class);
         startActivity(intent);
     }
+
+    public void autoRefresh(){
+        mails = getData();
+        mHandler.sendEmptyMessage(1);
+    }
+
+
+
+
+
+
 
 
     private static boolean isExit = false;
