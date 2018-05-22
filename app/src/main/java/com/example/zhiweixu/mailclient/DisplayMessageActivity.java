@@ -101,7 +101,7 @@ public class DisplayMessageActivity extends AppCompatActivity {
                 finish();
             }
         });
-
+        System.out.println("readStat"+" "+bundle.getInt("readStat"));
         if(bundle.getInt("readStat")==0){
             mThreadPool = Executors.newCachedThreadPool();
             // 利用线程池直接开启一个线程 & 执行该线程
@@ -116,6 +116,14 @@ public class DisplayMessageActivity extends AppCompatActivity {
                         String str = "read"+' '+bundle.getInt("mail_id");
                         oos.writeObject(str);
 
+                        InputStream ins = socket.getInputStream();
+
+                        ObjectInputStream ois=new ObjectInputStream(ins);
+                        try{
+                            ois.readObject();
+                        }catch (ClassNotFoundException e){
+
+                        }
 
 
 
