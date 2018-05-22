@@ -144,14 +144,30 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             // 接受服务器返回的对象;
                             Object object = ois.readObject();
 //                            if (object instanceof User){
-                                user = (User) object;
+//                                user = (User) object;
+
+                            String user = (String) object;
 
                                 if(user == null){
                                     System.out.println("this user is legal");
                                     user_exit = false;
                                 }else{
-                                    System.out.println("user id is :" + user.getUsr_id());
-                                    System.out.println("user pass is :" + user.getPassword());
+
+                                    sp = getSharedPreferences("user_login_state", Context.MODE_WORLD_WRITEABLE);
+                                    //获取到edit对象
+                                    SharedPreferences.Editor edit = sp.edit();
+                                    //通过editor对象写入数据
+                                    edit.putString("uuid", user);
+//                                    edit.putBoolean("login_state", true);
+                                    edit.putString("username", email);
+                                    edit.putString("password", password);
+//                                    Log.d("in login_state", "看看login里面的用户状态:" + sp.getBoolean("login_state",true));
+//                                    Log.d("in username", "看看login里面的用户id:" + sp.getString("username","None id"));
+//                                    Log.d("in password", "看看login里面的用户password:"+ sp.getString("password","None pass"));
+
+                                    //提交数据存入到xml文件中
+                                    edit.commit();
+
                                 }
 
 
@@ -289,19 +305,19 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             // 设置用户登录状态;
 
-            sp = getSharedPreferences("user_login_state", Context.MODE_WORLD_WRITEABLE);
-            //获取到edit对象
-            SharedPreferences.Editor edit = sp.edit();
-            //通过editor对象写入数据
-            edit.putBoolean("login_state", true);
-            edit.putString("username", email);
-            edit.putString("password", password);
-            Log.d("in login_state", "看看login里面的用户状态:" + sp.getBoolean("login_state",true));
-            Log.d("in username", "看看login里面的用户id:" + sp.getString("username","None id"));
-            Log.d("in password", "看看login里面的用户password:"+ sp.getString("password","None pass"));
-
-            //提交数据存入到xml文件中
-            edit.commit();
+//            sp = getSharedPreferences("user_login_state", Context.MODE_WORLD_WRITEABLE);
+//            //获取到edit对象
+//            SharedPreferences.Editor edit = sp.edit();
+//            //通过editor对象写入数据
+//            edit.putBoolean("login_state", true);
+//            edit.putString("username", email);
+//            edit.putString("password", password);
+//            Log.d("in login_state", "看看login里面的用户状态:" + sp.getBoolean("login_state",true));
+//            Log.d("in username", "看看login里面的用户id:" + sp.getString("username","None id"));
+//            Log.d("in password", "看看login里面的用户password:"+ sp.getString("password","None pass"));
+//
+//            //提交数据存入到xml文件中
+//            edit.commit();
 
 
 

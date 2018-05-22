@@ -65,6 +65,10 @@ public class MainActivity extends AppCompatActivity
 
     private String command ;
 
+    private boolean loginState;
+
+    private String uuid;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,12 +76,62 @@ public class MainActivity extends AppCompatActivity
 
         // 先判断是不是登录状态
         sp = getSharedPreferences("user_login_state", Context.MODE_WORLD_READABLE);
-        Boolean loginState = sp.getBoolean("login_state",false);
+        uuid = sp.getString("uuid", "false");
 
-        Log.d("in Main", "看看Main的登录状态:" + loginState);
+        Thread a1 = new Thread(new Runnable(){
+
+            @Override
+            public void run() {
+                try {
+                    Socket socket = new Socket("47.106.157.18", 9091);
+                    InputStream ins = socket.getInputStream();
+                    OutputStream os = socket.getOutputStream();
+
+                    ObjectOutputStream oos = new ObjectOutputStream(os);
+                    ObjectInputStream ois=new ObjectInputStream(ins);
+
+                    String str = "auth," + uuid;
+
+                    oos.writeObject(str);
+                    oos.flush();
+
+                    // 接受服务器返回的对象;
+                    Object object = ois.readObject();
+//                            if (object instanceof User){
+//                                user = (User) object;
+
+                    Boolean userlogin = (Boolean) object;
+
+
+                    System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" + userlogin);
+
+                    if(uuid.equals("false") || userlogin == false){
+                        System.out.println("this user is legal");
+                        loginState = false;
+                    }
+                    ois.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+//        a1.start();
+
+//        try {
+//            a1.join();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+
+
+
+//        Log.d("in Main", "看看Main的登录状态:" + loginState);
 
         if (!loginState){
-            Intent intent = new Intent(this, LoginActivity.class);
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
 //            finish();
         }
@@ -107,7 +161,7 @@ public class MainActivity extends AppCompatActivity
 
 
         listView = findViewById(R.id.test_lv);
-        final MailAdapter adapter=new MailAdapter(MainActivity.this,R.layout.mail_item,mails);
+        final MailAdapter adapter=new MailAdapter(MainActivity.this,R.layout.mail_item, mails);
         listView.setAdapter(adapter);
 
         swipeRefreshLayout = findViewById(R.id.swipeLayout);
@@ -213,19 +267,39 @@ public class MainActivity extends AppCompatActivity
                 e.printStackTrace();
             }
 
-            //根据参数做出不同的变化
-            String str = command;
-            oos.writeObject(str);
+            String str1 = "auth," + uuid;
+
+            oos.writeObject(str1);
             oos.flush();
 
-            System.out.println("client sent list");
-            data = (List<Mail>)ois.readObject();
-            System.out.println(data.size());
+            // 接受服务器返回的对象;
+            Boolean userlogin = ois.readBoolean();
+//            if(uuid.equals("false") || userlogin == false){
+//                System.out.println("this user is legal");
+//                loginState = false;
+//            }
 
-            String comm = "quit";
-            oos.writeObject(comm);
-            oos.flush();
-            ois.readObject();
+            System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" + userlogin);
+
+            if (!userlogin){
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+//            finish();
+            }else{
+                //根据参数做出不同的变化
+                String str = command;
+                oos.writeObject(str);
+                oos.flush();
+
+                System.out.println("client sent list");
+                data = (List<Mail>)ois.readObject();
+                System.out.println(data.size());
+
+                String comm = "quit";
+                oos.writeObject(comm);
+                oos.flush();
+                ois.readObject();
+            }
             ois.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -311,7 +385,7 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.action_settings) {
             sp = getSharedPreferences("user_login_state", Context.MODE_WORLD_WRITEABLE);
             SharedPreferences.Editor editor = sp.edit();
-            editor.remove("login_state");
+            editor.remove("uuid");
             editor.commit();
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
@@ -331,6 +405,8 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_inbox) {
             // Handle the camera action
         } else if (id == R.id.nav_draftbox) {
+
+
 
         } else if (id == R.id.nav_unread) { // 未读
 
