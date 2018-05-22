@@ -41,7 +41,7 @@ import JavaBean.Entity.Mail;
 import JavaBean.Entity.MailAdapter;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener ,Serializable{
+        implements NavigationView.OnNavigationItemSelectedListener {
     static Activity ActivityA;
     ListView listView;
     Socket socket;
@@ -117,7 +117,9 @@ public class MainActivity extends AppCompatActivity
                                                 String sender=mails.get((int)id).getFrom();
                                                 String to=mails.get((int)id).getTo();
                                                 String content=mails.get((int)id).getContent();
+                                                int readStat=mails.get((int)id).getReadStat();
                                                 Timestamp time=mails.get((int)id).getTime();
+
 
                                                 bundle.putString("subject",subject);
                                                 bundle.putInt("mail_id",mail_id);
@@ -125,6 +127,7 @@ public class MainActivity extends AppCompatActivity
                                                 bundle.putString("to",to);
                                                 bundle.putString("content",content);
                                                 bundle.putString("time",time.toString());
+                                                bundle.getInt("readStat",readStat);
   //                                              bundle.putSerializable("MainActivity",MainActivity.this);
 
                                                 intent.putExtras(bundle);
