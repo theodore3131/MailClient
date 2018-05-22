@@ -146,18 +146,18 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 //                            if (object instanceof User){
 //                                user = (User) object;
 
-                            String user = (String) object;
+                            String uuid = (String) object;
 
-                                if(user == null){
-                                    System.out.println("this user is legal");
+                                if(uuid == null){
+                                    System.out.println("this user is illegal");
                                     user_exit = false;
                                 }else{
 
-                                    sp = getSharedPreferences("user_login_state", Context.MODE_WORLD_WRITEABLE);
+                                    sp = getSharedPreferences("user_login_state", Context.MODE_PRIVATE);
                                     //获取到edit对象
                                     SharedPreferences.Editor edit = sp.edit();
                                     //通过editor对象写入数据
-                                    edit.putString("uuid", user);
+                                    edit.putString("uuid", uuid);
 //                                    edit.putBoolean("login_state", true);
                                     edit.putString("username", email);
                                     edit.putString("password", password);
