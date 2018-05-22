@@ -60,10 +60,15 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        if(getIntent()!=null) command = getIntent().getStringExtra("commandExtra");
-        if(command==null) command = "list";
+
+        if(getIntent() != null) {
+            command = getIntent().getStringExtra("commandExtra");
+        }
+        if(command == null) {
+            command = "list";
+        }
         System.out.println(command);
-        ActivityA=this;
+        ActivityA = this;
         Thread a = new Thread(new Runnable() {
             @Override
             public void run() {

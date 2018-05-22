@@ -1,5 +1,7 @@
 package com.example.zhiweixu.mailclient;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -27,14 +29,6 @@ import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.net.Socket;
-import java.sql.Timestamp;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import JavaBean.Entity.Mail;
 
 public class SendActivity extends AppCompatActivity{
@@ -42,9 +36,9 @@ public class SendActivity extends AppCompatActivity{
     private BufferedReader in = null;
     private PrintWriter out = null;
     private Mail mail = null;
-    private Socket socket;
     private ExecutorService mThreadPool;
-
+    // 用户登录状态记录
+    private SharedPreferences sp;
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.send_menu,menu);
@@ -80,88 +74,62 @@ public class SendActivity extends AppCompatActivity{
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.action_send:
+            switch (item.getItemId()) {
+                case R.id.action_send:
 
-                        // 如果是发送邮件, 则将数据发送到服务器
+                    // 如果是发送邮件, 则将数据发送到服务器
 
-                        EditText to_edittext = findViewById(R.id.to_editText);
-                        String receiver = to_edittext.getText().toString();
-                        String[] receiverList = receiver.split(";");
-                        EditText subject_edittext = findViewById(R.id.subject_editText);
-                        String subject = subject_edittext.getText().toString();
+                    EditText to_edittext = findViewById(R.id.to_editText);
+                    String receiver = to_edittext.getText().toString();
 
-                        EditText content_edittext = findViewById(R.id.content_editText);
-                        String content = content_edittext.getText().toString();
+                    EditText subject_edittext = findViewById(R.id.subject_editText);
+                    String subject = subject_edittext.getText().toString();
 
-//                        // 设置输入文本的信息
-                        String from = "dbg@bro.com";
-                        mail = new Mail(from,receiverList,subject,content);
-                        // 初始化线程池
-                        mThreadPool = Executors.newCachedThreadPool();
-                        // 利用线程池直接开启一个线程 & 执行该线程
-                        mThreadPool.execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    // 创建Socket对象 & 指定服务端的IP 及 端口号
-                                    Socket socket = new Socket("47.106.157.18", 9090);
-                                    OutputStream os = socket.getOutputStream();
-                                    ObjectOutputStream oos = new ObjectOutputStream(os);
-                                    Timestamp time = new Timestamp(new Date().getTime());
-                                    mail.setTime(time);
-                                    mail.setSendStat(1);
-                                    oos.writeObject(mail);
-                                    socket.close();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
+                    EditText content_edittext = findViewById(R.id.content_editText);
+                    String content = content_edittext.getText().toString();
 
+                    String [] receiver_list = receiver.split(";");
+
+                    sp = getSharedPreferences("username", Context.MODE_WORLD_READABLE);
+                    String sender = sp.getString("username","boss@bro.com");
+
+                    // 设置输入文本的信息
+                    mail = new Mail();
+                    mail.setFrom(sender);
+                    mail.setToList(receiver_list);
+                    mail.setSubject(subject);
+                    mail.setContent(content);
+
+                    // 初始化线程池
+                    mThreadPool = Executors.newCachedThreadPool();
+                    // 利用线程池直接开启一个线程 & 执行该线程
+                    mThreadPool.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                // 创建Socket对象 & 指定服务端的IP 及 端口号
+                                Socket socket = new Socket("47.106.157.18", 9090);
+                                OutputStream os = socket.getOutputStream();
+                                ObjectOutputStream oos = new ObjectOutputStream(os);
+                                Timestamp time = new Timestamp(new Date().getTime());
+                                mail.setTime(time);
+                                mail.setSendStat(1);
+                                // sender不能为空
+                                oos.writeObject(mail);
+                                socket.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
                             }
-                        });
 
-//                        try {
-//                            Socket socket = new Socket("127.0.0.1", 9090);
-//                            OutputStream os = socket.getOutputStream();
-//                            ObjectOutputStream oos = new ObjectOutputStream(os);
-//                            Timestamp time = new Timestamp(new Date().getTime());
-//                            mail.setTime(time);
-//                            oos.writeObject(mail);
-//                            socket.close();
-//                        }catch(IOException e){
-//                            e.printStackTrace();
-//                        }
+                        }
+                    });
 
-
-                                String mess = "" + receiver + "," + subject + "," + content;
-                        Toast.makeText(SendActivity.this, mess, Toast.LENGTH_SHORT).show();
-                        // 初始化线程池
-                        mThreadPool = Executors.newCachedThreadPool();
-                        // 利用线程池直接开启一个线程 & 执行该线程
-                        mThreadPool.execute(new Runnable() {
-                            @Override
-                            public void run() {
-
-                                try {
-
-                                    // 创建Socket对象 & 指定服务端的IP 及 端口号
-                                    Socket socket = new Socket("47.106.157.18", 9090);
-
-                                    // 判断客户端和服务器是否连接成功
-                                    System.out.println(socket.isConnected());
-
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-
-                            }
-                        });
-                        break;
-                }
-                return false;
+                    String mess = "" + receiver + "," + subject + "," + content;
+                    Toast.makeText(SendActivity.this, mess, Toast.LENGTH_SHORT).show();
+                    break;
+            }
+            return false;
             }
         });
-
-
     }
 }

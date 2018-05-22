@@ -3,7 +3,9 @@ package com.example.zhiweixu.mailclient;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -30,8 +32,17 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+
+import JavaBean.Entity.User;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -50,18 +61,38 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * TODO: remove after connecting to a real authentication system.
      */
     private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
+            "foo@example.com:helloyou", "bar@example.com:worldyou"
     };
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
 
+    // 邮箱的正则表达式
+    public static final String REGEX_EMAIL = "^([a-z0-9A-Z]+[-|\\.]?)+[a-z0-9A-Z]@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-zA-Z]{2,}$";
+
+    // 用户对象
+    private User user;
+
+    // 用户密码
+    private String email;
+    private String password;
+
+    // 用户登录状态记录
+    private SharedPreferences sp;
+
+    // 用户是否存在判断
+    private boolean user_exit;
+
+    // 线程池
+    private ExecutorService mThreadPool;
+
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +118,66 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                user_exit = true;
+
+                Thread a = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Socket socket = new Socket("47.106.157.18", 9091);
+                            InputStream ins = socket.getInputStream();
+                            OutputStream os = socket.getOutputStream();
+
+                            ObjectOutputStream oos = new ObjectOutputStream(os);
+                            ObjectInputStream ois=new ObjectInputStream(ins);
+
+                            email = mEmailView.getText().toString();
+                            password = mPasswordView.getText().toString();
+
+                            String mess = email + ";" + password;
+
+                            oos.writeObject(mess);
+                            oos.flush();
+
+                            // 接受服务器返回的对象;
+                            Object object = ois.readObject();
+//                            if (object instanceof User){
+                                user = (User) object;
+
+                                if(user == null){
+                                    System.out.println("this user is legal");
+                                    user_exit = false;
+                                }else{
+                                    System.out.println("user id is :" + user.getUsr_id());
+                                    System.out.println("user pass is :" + user.getPassword());
+                                }
+//                            }else {
+//                                String s = (String) object;
+//                                System.out.println("收到字符串" + s);
+//                            }
+
+
+                            ois.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+                a.start();
+
+                try {
+                    a.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                // 进入登录判断;
                 attemptLogin();
+
             }
         });
 
@@ -154,8 +244,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
+//        String email = mEmailView.getText().toString();
+//        String password = mPasswordView.getText().toString();
+        email = mEmailView.getText().toString();
+        password = mPasswordView.getText().toString();
+
 
         boolean cancel = false;
         View focusView = null;
@@ -163,6 +256,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         // Check for a valid password, if the user entered one.
         if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
+            focusView = mPasswordView;
+            cancel = true;
+        }else if (!user_exit){
+            mPasswordView.setError(getString(R.string.error_user_exit));
             focusView = mPasswordView;
             cancel = true;
         }
@@ -178,6 +275,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             cancel = true;
         }
 
+
         if (cancel) {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
@@ -189,23 +287,44 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             mAuthTask = new UserLoginTask(email, password);
 
 
-            Intent intent = new Intent(this, MainActivity.class);
+            // 设置用户登录状态;
 
+            // 设置私有
+            sp = getSharedPreferences("user_login_state", Context.MODE_PRIVATE);
+            //获取到edit对象
+            SharedPreferences.Editor edit = sp.edit();
+            //通过editor对象写入数据
+            edit.putBoolean("login_state", true);
+            edit.putString("username", email);
+            edit.putString("password", password);
+
+            //提交数据存入到xml文件中
+            edit.commit();
+
+
+
+
+//            Toast.makeText(LoginActivity.this, "你进来了", Toast.LENGTH_SHORT).show();
+
+
+            Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
-            finish();
+
             //先注释掉
-            //mAuthTask.execute((Void) null);
+//            mAuthTask.execute((Void) null);
         }
     }
 
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
-        return email.contains("@");
+        //return email.contains("@");
+        // 邮箱的正则表达式
+        return email.matches(REGEX_EMAIL);
     }
 
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
-        return password.length() > 4;
+        return password.length() >= 6;
     }
 
     /**
@@ -332,7 +451,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
 
             // TODO: register the new account here.
-            return true;
+            return false;
         }
 
         @Override
