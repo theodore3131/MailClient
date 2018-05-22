@@ -199,6 +199,8 @@ public class MainActivity extends AppCompatActivity
                                                 String to=mails.get((int)id).getTo();
                                                 String content=mails.get((int)id).getContent();
                                                 int readStat=mails.get((int)id).getReadStat();
+                                                System.out.println("readStattttt"+" "+readStat);
+
                                                 Timestamp time=mails.get((int)id).getTime();
 
 
@@ -206,9 +208,9 @@ public class MainActivity extends AppCompatActivity
                                                 bundle.putInt("mail_id",mail_id);
                                                 bundle.putString("sender",sender);
                                                 bundle.putString("to",to);
-                                                bundle.putString("content",content);
+                                                bundle.putString("con\tent",content);
                                                 bundle.putString("time",time.toString());
-                                                bundle.getInt("readStat",readStat);
+                                                bundle.putInt("readStat",readStat);
   //                                              bundle.putSerializable("MainActivity",MainActivity.this);
 
                                                 intent.putExtras(bundle);

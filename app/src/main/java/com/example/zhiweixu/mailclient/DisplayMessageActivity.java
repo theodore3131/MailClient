@@ -53,6 +53,9 @@ public class DisplayMessageActivity extends AppCompatActivity {
     }
 
 
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,7 +101,7 @@ public class DisplayMessageActivity extends AppCompatActivity {
                 finish();
             }
         });
-
+        System.out.println("readStat"+" "+bundle.getInt("readStat"));
         if(bundle.getInt("readStat")==0){
             mThreadPool = Executors.newCachedThreadPool();
             // 利用线程池直接开启一个线程 & 执行该线程
@@ -110,9 +113,24 @@ public class DisplayMessageActivity extends AppCompatActivity {
                         Socket socket = new Socket("47.106.157.18", 9091);
                         OutputStream os = socket.getOutputStream();
                         ObjectOutputStream oos = new ObjectOutputStream(os);
-                        String str = "read" + ' ' + bundle.getInt("mail_id");
+                        String str = "read"+' '+bundle.getInt("mail_id");
                         oos.writeObject(str);
+
+                        InputStream ins = socket.getInputStream();
+
+                        ObjectInputStream ois=new ObjectInputStream(ins);
+                        try{
+                            ois.readObject();
+                        }catch (ClassNotFoundException e){
+
+                        }
+
+
+
                         socket.close();
+
+
+
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
