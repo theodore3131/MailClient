@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -40,6 +41,16 @@ public class DisplayMessageActivity extends AppCompatActivity {
         return true;
     }
 
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            ActivityA.finish();
+            Intent intent =new Intent(DisplayMessageActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+            return false;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
 
 
 
@@ -82,11 +93,47 @@ public class DisplayMessageActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 // 退出的时候自动保存
+                Intent intent =new Intent(DisplayMessageActivity.this, MainActivity.class);
+                startActivity(intent);
+                ActivityA.finish();
 
 
                 finish();
             }
         });
+
+        if(bundle.getInt("readStat")==0){
+            mThreadPool = Executors.newCachedThreadPool();
+            // 利用线程池直接开启一个线程 & 执行该线程
+            mThreadPool.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        // 创建Socket对象 & 指定服务端的IP 及 端口号
+                        Socket socket = new Socket("47.106.157.18", 9091);
+                        OutputStream os = socket.getOutputStream();
+                        ObjectOutputStream oos = new ObjectOutputStream(os);
+                        String str = "read"+' '+bundle.getInt("mail_id");
+                        oos.writeObject(str);
+
+
+
+
+                        socket.close();
+
+
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            });
+        }
+
+
+
+
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -117,9 +164,7 @@ public class DisplayMessageActivity extends AppCompatActivity {
                     }
                 });
 
-//                MainActivity activity=(MainActivity) bundle.getSerializable("MainActivity");
-//
-//                activity.autoRefresh();
+
 
                 Intent intent =new Intent(DisplayMessageActivity.this, MainActivity.class);
                 startActivity(intent);

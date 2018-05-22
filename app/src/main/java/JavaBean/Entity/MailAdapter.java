@@ -24,13 +24,13 @@ public class MailAdapter extends ArrayAdapter<Mail> {
         ImageView mailImage = (ImageView)view.findViewById(R.id.mail_image);
         TextView mailName=(TextView) view.findViewById(R.id.mail_name);
 
-        if(mail.getReadStat()==1){
+        if(mail.getReadStat()==0){
         mailImage.setImageResource(R.drawable.ic_message_black_24dp);}
         else{
             mailImage.setImageResource(R.drawable.ic_message_grey_24dp);
         }
 
-        mailName.setText(mail.getSubject()+'\n'+mail.getContent()+" "+mail.getReadStat());
+        mailName.setText(mail.getSubject()+'\n'+mail.getContent());
 
         return view;
     }
