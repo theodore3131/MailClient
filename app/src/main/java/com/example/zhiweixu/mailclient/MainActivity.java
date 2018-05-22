@@ -2,6 +2,7 @@ package com.example.zhiweixu.mailclient;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -310,6 +311,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_friends) {
             Toast.makeText(MainActivity.this,"friend clicked", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(MainActivity.this, MainActivity.class);
+            intent.putExtra("command", "friend");
             startActivity(intent);
         } else if (id == R.id.nav_send) {
 
