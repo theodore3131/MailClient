@@ -219,6 +219,7 @@ public class MainActivity extends AppCompatActivity
                                         }
 
         );
+//        asdasdasd
 
 
 
@@ -387,6 +388,7 @@ public class MainActivity extends AppCompatActivity
             SharedPreferences.Editor editor = sp.edit();
             editor.remove("uuid");
             editor.commit();
+            // sfsdf
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
 //            finish();

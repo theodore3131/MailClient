@@ -93,6 +93,7 @@ public class SendActivity extends AppCompatActivity{
                     sp = getSharedPreferences("user_login_state", Context.MODE_WORLD_READABLE);
                     String sender = sp.getString("username","boss@bro.com");
 
+//                    asdasdasd
                     Log.d("in sendactivity", "看看send里面的用户:" + sender);
 
                     // 设置输入文本的信息
