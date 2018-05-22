@@ -19,11 +19,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,11 +32,8 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.Socket;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import JavaBean.Entity.Mail;
 import JavaBean.Entity.MailAdapter;
@@ -301,16 +296,18 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_inbox) {
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.nav_draftbox) {
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_unread) {
 
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.nav_sent) {
 
-        } else if (id == R.id.nav_share) {
-
+        } else if (id == R.id.nav_friends) {
+            Toast.makeText(MainActivity.this,"friend clicked", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(MainActivity.this, MainActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_send) {
 
         }
