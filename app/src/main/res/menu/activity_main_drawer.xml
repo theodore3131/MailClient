@@ -5,11 +5,11 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_camera"
+            android:id="@+id/nav_inbox"
             android:icon="@drawable/ic_menu_inbox"
             android:title="Inbox" />
         <item
-            android:id="@+id/nav_gallery"
+            android:id="@+id/nav_draftbox"
             android:icon="@drawable/ic_menu_draftbox"
             android:title="Draft Box" />
         <item
@@ -17,11 +17,11 @@
             android:icon="@drawable/ic_menu_unread"
             android:title="Unread" />
         <item
-            android:id="@+id/nav_slideshow"
+            android:id="@+id/nav_sent"
             android:icon="@drawable/ic_menu_sent"
             android:title="Sent" />
         <item
-            android:id="@+id/nav_manage"
+            android:id="@+id/nav_friends"
             android:icon="@drawable/ic_menu_friendlist"
             android:title="Friends" />
     </group>
