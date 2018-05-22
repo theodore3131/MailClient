@@ -7,14 +7,20 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".MainActivity"
     tools:showIn="@layout/app_bar_main">
-
-    <ListView
-        android:id="@+id/test_lv"
+    <android.support.v4.widget.SwipeRefreshLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:id="@+id/swipeLayout">
 
-        android:divider="@color/colorBule"
-        android:dividerHeight="1dp">
-    </ListView>
+        <ListView
+            android:id="@+id/test_lv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:divider="@color/colorBule"
+            android:dividerHeight="1dp">
+        </ListView>
+    </android.support.v4.widget.SwipeRefreshLayout>
 
 </android.support.constraint.ConstraintLayout>

@@ -1,11 +1,13 @@
 package com.example.zhiweixu.mailclient;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.KeyEvent;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -27,6 +29,7 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.net.Socket;
 import java.sql.Timestamp;
 import java.util.List;
@@ -36,55 +39,33 @@ import JavaBean.Entity.Mail;
 import JavaBean.Entity.MailAdapter;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
-        private  ListView listView;
-        private Socket socket;
+        implements NavigationView.OnNavigationItemSelectedListener ,Serializable{
+    static Activity ActivityA;
+    ListView listView;
+    Socket socket;
+    InputStream ins;
+    OutputStream os;
+    ObjectOutputStream oos;
+    ObjectInputStream ois;
 
-        private List<Mail> mails;
+    private List<Mail> mails;
     private static final int TIME_INTERVAL = 2000; // # milliseconds, desired time passed between two back presses.
-    private long mBackPressed;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
-    private  ExecutorService mThreadPool ;
-    // 利用线程池直接开启一个线程 & 执行该线程
-
-
-
+    private String command ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
         setContentView(R.layout.activity_main);
-
-
-
-
+        if(getIntent()!=null) command = getIntent().getStringExtra("commandExtra");
+        if(command==null) command = "list";
+        System.out.println(command);
+        ActivityA=this;
         Thread a = new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    Socket socket = new Socket("47.106.157.18", 9091);
-                    InputStream ins = socket.getInputStream();
-                    OutputStream os = socket.getOutputStream();
-
-                    BufferedReader brd = new BufferedReader(new InputStreamReader(ins));
-                    ObjectOutputStream oos = new ObjectOutputStream(os);
-                    ObjectInputStream ois=new ObjectInputStream(ins);
-
-                    String str = "list";
-                    oos.writeObject(str);
-                    oos.flush();
-
-                    System.out.println("client sent list");
-                    mails = (List<Mail>)ois.readObject();
-                    System.out.println(mails.size());
-                    ois.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
+                mails = getData();
             }
         });
         a.start();
@@ -96,39 +77,31 @@ public class MainActivity extends AppCompatActivity
 
 
 
-//        mThreadPool.execute(new Runnable(){
-//
-//            @Override
-//            public void run() {
-//                try {
-//                    socket = new Socket("localhost", 9091);
-//                    InputStream ips = socket.getInputStream();
-//                    ObjectInputStream ois = new ObjectInputStream(ips);
-//                    mail = new ArrayList<>();
-//                    mail = (List<Mail>) ois.readObject();
-//                    ois.close();
-//                    socket.close();
-//                } catch (ClassNotFoundException e) {
-//                    e.printStackTrace();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
-//        List<Mail> mails=new ArrayList<>();
-//        for(int i=0;i<20;i++){
-//            Mail mai=new Mail();
-//            mai.setMail_id(i);
-//            mai.setSubject(i+" "+i);
-//            Timestamp time = new Timestamp(new Date().getTime());
-//            mai.setTime(time);
-//            mai.setContent("hhhhhhhhhh"+i);
-//            mails.add(mai);
-//        }
-        listView =(ListView) findViewById(R.id.test_lv);
-
-        MailAdapter adapter=new MailAdapter(MainActivity.this,R.layout.mail_item,mails);
+        listView = findViewById(R.id.test_lv);
+        final MailAdapter adapter=new MailAdapter(MainActivity.this,R.layout.mail_item,mails);
         listView.setAdapter(adapter);
+
+        swipeRefreshLayout = findViewById(R.id.swipeLayout);
+        swipeRefreshLayout.setColorSchemeResources(R.color.colorBule);
+        swipeRefreshLayout.setSize(SwipeRefreshLayout.DEFAULT);
+        swipeRefreshLayout.setProgressViewEndTarget(true, 200);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Thread.sleep(1500);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        autoRefresh();
+                    }
+                }).start();
+            }
+        });
+
 
    //     listView.setAdapter(new ArrayAdapter<Mail>(this, android.R.layout.simple_list_item_1, mails ));
 
@@ -150,9 +123,11 @@ public class MainActivity extends AppCompatActivity
                                                 bundle.putString("to",to);
                                                 bundle.putString("content",content);
                                                 bundle.putString("time",time.toString());
+  //                                              bundle.putSerializable("MainActivity",MainActivity.this);
 
                                                 intent.putExtras(bundle);
                                                 startActivity(intent);
+
                                                 //我们需要的内容，跳转页面或显示详细信息
                                             }
                                         }
@@ -192,24 +167,57 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-//    private List<Mail> getData(){
-//        List<Mail> data = new ArrayList<Mail>();
-//        for(int i=0;i<mails.size();i++){
-//            data.add(mails.get(i));
-//        }
-////        for(int i=0;i<mail.size();i++){
-////            data.add(mail.get(i).getReceiver());
-////        }
-//
-//
-//
-//
-//        return data;
-//    }
+    private List<Mail> getData(){
+        List<Mail> data = new ArrayList<Mail>();
+        try {
+            try {
+                socket = new Socket("47.106.157.18", 9091);
+                ins = socket.getInputStream();
+                os = socket.getOutputStream();
+
+                oos = new ObjectOutputStream(os);
+                ois=new ObjectInputStream(ins);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            //根据参数做出不同的变化
+            String str = command;
+            oos.writeObject(str);
+            oos.flush();
+
+            System.out.println("client sent list");
+            data = (List<Mail>)ois.readObject();
+            System.out.println(data.size());
+
+            String comm = "quit";
+            oos.writeObject(comm);
+            oos.flush();
+            ois.readObject();
+            ois.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return data;
+    }
+
     public void writeEmail(View view) {
         Intent intent = new Intent(this, SendActivity.class);
         startActivity(intent);
     }
+
+    public void autoRefresh(){
+        mails = getData();
+        mHandler.sendEmptyMessage(1);
+    }
+
+
+
+
+
+
 
 
     private static boolean isExit = false;
@@ -218,7 +226,9 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            isExit = false;
+            swipeRefreshLayout.setRefreshing(false);
+            MailAdapter adapter=new MailAdapter(MainActivity.this,R.layout.mail_item,mails);
+            listView.setAdapter(adapter);
         }
     };
 
