@@ -12,8 +12,8 @@ public class FriendinfoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friendinfo);
-
-        ListView listView = (ListView) findViewById(R.id.friendinfo);
+//
+//        ListView listView = (ListView) findViewById(R.id.friendinfo);
         //Toast.makeText(this, "this is friend activity", Toast.LENGTH_SHORT).show();
     }
 }

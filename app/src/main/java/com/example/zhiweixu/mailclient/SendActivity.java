@@ -90,8 +90,10 @@ public class SendActivity extends AppCompatActivity{
 
                     String [] receiver_list = receiver.split(";");
 
-                    sp = getSharedPreferences("username", Context.MODE_WORLD_READABLE);
+                    sp = getSharedPreferences("user_login_state", Context.MODE_WORLD_READABLE);
                     String sender = sp.getString("username","boss@bro.com");
+
+                    Log.d("in sendactivity", "看看send里面的用户:" + sender);
 
                     // 设置输入文本的信息
                     mail = new Mail();

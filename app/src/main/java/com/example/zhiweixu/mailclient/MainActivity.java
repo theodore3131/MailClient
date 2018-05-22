@@ -1,7 +1,9 @@
 package com.example.zhiweixu.mailclient;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -9,6 +11,7 @@ import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -50,6 +53,12 @@ public class MainActivity extends AppCompatActivity
     ObjectOutputStream oos;
     ObjectInputStream ois;
 
+    // 用户登录状态记录
+    private SharedPreferences sp;
+
+    // 用户是否存在判断
+    private boolean user_exit;
+
     private List<Mail> mails;
     private static final int TIME_INTERVAL = 2000; // # milliseconds, desired time passed between two back presses.
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -60,6 +69,19 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // 先判断是不是登录状态
+        sp = getSharedPreferences("user_login_state", Context.MODE_WORLD_READABLE);
+        Boolean loginState = sp.getBoolean("login_state",false);
+
+        Log.d("in Main", "看看Main的登录状态:" + loginState);
+
+        if (!loginState){
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+//            finish();
+        }
+
 
         if(getIntent() != null) {
             command = getIntent().getStringExtra("commandExtra");
@@ -226,10 +248,6 @@ public class MainActivity extends AppCompatActivity
 
 
 
-
-
-
-
     private static boolean isExit = false;
     Handler mHandler = new Handler() {
 
@@ -291,6 +309,13 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            sp = getSharedPreferences("user_login_state", Context.MODE_WORLD_WRITEABLE);
+            SharedPreferences.Editor editor = sp.edit();
+            editor.remove("login_state");
+            editor.commit();
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+//            finish();
             return true;
         }
 
@@ -307,9 +332,13 @@ public class MainActivity extends AppCompatActivity
             // Handle the camera action
         } else if (id == R.id.nav_draftbox) {
 
-        } else if (id == R.id.nav_unread) {
+        } else if (id == R.id.nav_unread) { // 未读
 
-        } else if (id == R.id.nav_sent) {
+
+
+        } else if (id == R.id.nav_sent) {  // 发件箱
+
+
 
         } else if (id == R.id.nav_friends) {
             Toast.makeText(MainActivity.this,"friend clicked", Toast.LENGTH_SHORT).show();

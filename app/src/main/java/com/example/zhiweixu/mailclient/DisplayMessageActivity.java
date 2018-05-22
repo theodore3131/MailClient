@@ -53,9 +53,6 @@ public class DisplayMessageActivity extends AppCompatActivity {
     }
 
 
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -113,16 +110,9 @@ public class DisplayMessageActivity extends AppCompatActivity {
                         Socket socket = new Socket("47.106.157.18", 9091);
                         OutputStream os = socket.getOutputStream();
                         ObjectOutputStream oos = new ObjectOutputStream(os);
-                        String str = "read"+' '+bundle.getInt("mail_id");
+                        String str = "read" + ' ' + bundle.getInt("mail_id");
                         oos.writeObject(str);
-
-
-
-
                         socket.close();
-
-
-
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
