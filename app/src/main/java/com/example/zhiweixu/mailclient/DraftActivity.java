@@ -309,6 +309,8 @@ public class DraftActivity extends AppCompatActivity
 //            super.onBackPressed();
 //        }
 
+        finish();
+
     }
 
     @Override
