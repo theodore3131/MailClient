@@ -35,7 +35,7 @@ import static com.example.zhiweixu.mailclient.DraftActivity.ActivityB;
 
 public class DraftMessageActivity extends AppCompatActivity {
     private ExecutorService mThreadPool ;
-
+    String command;
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.receive_menu,menu);
         return true;
@@ -60,8 +60,12 @@ public class DraftMessageActivity extends AppCompatActivity {
         setContentView(R.layout.activity_display_message);
 
         Intent intent = getIntent();
+
+
         final Bundle bundle=this.getIntent().getExtras();
+        command=bundle.getString("command");
         final String subject=bundle.getString("subject");
+
         TextView subject2=findViewById(R.id.Subject2);
         subject2.setText(subject);
 
@@ -83,7 +87,7 @@ public class DraftMessageActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        toolbar.setTitle("Receive Message");
+        toolbar.setTitle(command+" Message");
         //添加导航位置图标
         toolbar.setNavigationIcon(R.mipmap.ic_action_arrow_back);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -134,7 +138,10 @@ public class DraftMessageActivity extends AppCompatActivity {
 
 
 
-                Intent intent =new Intent(DraftMessageActivity.this, MainActivity.class);
+                Intent intent =new Intent(DraftMessageActivity.this, DraftActivity.class);
+                Bundle bundle=new Bundle();
+                bundle.putString("command",command);
+                intent.putExtras(bundle);
                 startActivity(intent);
                 ActivityB.finish();
                 finish();
