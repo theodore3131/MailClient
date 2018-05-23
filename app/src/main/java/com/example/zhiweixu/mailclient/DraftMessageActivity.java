@@ -87,7 +87,7 @@ public class DraftMessageActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        toolbar.setTitle("Receive Message");
+        toolbar.setTitle(command+" Message");
         //添加导航位置图标
         toolbar.setNavigationIcon(R.mipmap.ic_action_arrow_back);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
