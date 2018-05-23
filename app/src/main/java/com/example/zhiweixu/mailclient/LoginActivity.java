@@ -324,11 +324,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
 //            Toast.makeText(LoginActivity.this, "你进来了", Toast.LENGTH_SHORT).show();
 
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
             finish();
-
-
-//            Intent intent = new Intent(this, MainActivity.class);
-//            startActivity(intent);
 
             //先注释掉
 //            mAuthTask.execute((Void) null);

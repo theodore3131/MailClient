@@ -329,11 +329,12 @@ public class MainActivity extends AppCompatActivity
             sp = getSharedPreferences("user_login_state", Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sp.edit();
             editor.remove("uuid");
+            editor.clear();
             editor.commit();
             // sfsdf
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
-//            finish();
+            finish();
             return true;
         }
 

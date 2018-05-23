@@ -90,7 +90,7 @@ public class SendActivity extends AppCompatActivity{
 
                     String [] receiver_list = receiver.split(";");
 
-                    sp = getSharedPreferences("user_login_state", Context.MODE_WORLD_READABLE);
+                    sp = getSharedPreferences("user_login_state", Context.MODE_PRIVATE);
                     String sender = sp.getString("username","boss@bro.com");
 
 //                    asdasdasd
