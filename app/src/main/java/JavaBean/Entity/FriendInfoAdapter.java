@@ -15,6 +15,8 @@ import java.util.List;
 public class FriendInfoAdapter extends ArrayAdapter<FriendInfo> {
 
     private int resourceId;
+
+    // ssdkjsdl
     public FriendInfoAdapter(Context context, int textViewResourceId, List<FriendInfo> objects){
         super(context,textViewResourceId,objects);
         resourceId=textViewResourceId;
