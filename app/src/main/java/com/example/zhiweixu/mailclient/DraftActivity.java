@@ -162,7 +162,7 @@ public class DraftActivity extends AppCompatActivity
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                                                 @Override
                                                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                                    Intent intent = new Intent(DraftActivity.this, DisplayMessageActivity.class);
+                                                    Intent intent = new Intent(DraftActivity.this, DraftMessageActivity.class);
                                                     Bundle bundle = new Bundle();
                                                     String subject = mails.get((int) id).getSubject();
                                                     int mail_id = mails.get((int) id).getMail_id();
@@ -179,9 +179,10 @@ public class DraftActivity extends AppCompatActivity
                                                     bundle.putInt("mail_id", mail_id);
                                                     bundle.putString("sender", sender);
                                                     bundle.putString("to", to);
-                                                    bundle.putString("con\tent", content);
+                                                    bundle.putString("content", content);
                                                     bundle.putString("time", time.toString());
                                                     bundle.putInt("readStat", readStat);
+                                                    bundle.putString("command",command);
                                                     //                                              bundle.putSerializable("MainActivity",MainActivity.this);
 
                                                     intent.putExtras(bundle);
@@ -348,6 +349,7 @@ public class DraftActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_inbox) {
+            finish();
             // Handle the camera action
         } else if (id == R.id.nav_draftbox) {
             Intent intent =new Intent(DraftActivity.this, DraftActivity.class);
