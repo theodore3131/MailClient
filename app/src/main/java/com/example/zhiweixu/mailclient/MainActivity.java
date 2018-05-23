@@ -41,8 +41,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
-import JavaBean.Entity.FriendInfo;
-import JavaBean.Entity.FriendInfoAdapter;
 import JavaBean.Entity.Mail;
 import JavaBean.Entity.MailAdapter;
 
@@ -50,13 +48,10 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     static Activity ActivityA;
     ListView listView;
-    Socket socket;
-    InputStream ins;
-    OutputStream os;
+    MySocket socket;
+
     ObjectOutputStream oos;
     ObjectInputStream ois;
-    private List<FriendInfo> friendInfos;
-
 
     // 用户登录状态记录
     private SharedPreferences sp;
@@ -65,7 +60,6 @@ public class MainActivity extends AppCompatActivity
     private boolean user_exit;
 
     private List<Mail> mails;
-    private List<FriendInfo> data;
     private static final int TIME_INTERVAL = 2000; // # milliseconds, desired time passed between two back presses.
     private SwipeRefreshLayout swipeRefreshLayout;
 
@@ -75,162 +69,123 @@ public class MainActivity extends AppCompatActivity
 
     private String uuid;
 
+    public MainActivity() throws IOException {
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         // 先判断是不是登录状态
-        sp = getSharedPreferences("user_login_state", Context.MODE_WORLD_READABLE);
+        sp = getSharedPreferences("user_login_state", Context.MODE_PRIVATE);
         uuid = sp.getString("uuid", null);
 
-        command = "list";
-        if(getIntent().getStringExtra("command")!=null) {
-            command = getIntent().getStringExtra("command");
+
+        if(getIntent() != null) {
+            command = getIntent().getStringExtra("commandExtra");
         }
-        System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" + command);
+
+        command = "list";
+
+        System.out.println(command);
 
         ActivityA = this;
 
-        if("list".equals(command)) {
-            Thread a = new Thread(new Runnable() {
+        Thread a = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                loginState = checkLogin();
+            }
+        });
+        a.start();
+
+        try {
+            a.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
+        if (!loginState){
+            System.out.println("you are not log in");
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        }
+
+        else {
+            Thread a1 = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    loginState = getData();
+                    autoRefresh();
                 }
             });
-            a.start();
+            a1.start();
 
             try {
-                a.join();
+                a1.join();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            listView = findViewById(R.id.test_lv);
+            final MailAdapter adapter = new MailAdapter(MainActivity.this, R.layout.mail_item, mails);
+            listView.setAdapter(adapter);
 
-            if (!loginState) {
-                System.out.println("you are not log in");
-                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                startActivity(intent);
-                finish();
-            } else {
-
-                Thread x = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        autoRefresh();
-                    }
-                });
-
-                x.start();
-
-                try {
-                    x.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+            swipeRefreshLayout = findViewById(R.id.swipeLayout);
+            swipeRefreshLayout.setColorSchemeResources(R.color.colorBule);
+            swipeRefreshLayout.setSize(SwipeRefreshLayout.DEFAULT);
+            swipeRefreshLayout.setProgressViewEndTarget(true, 200);
+            swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            autoRefresh();
+                        }
+                    }).start();
                 }
-                listView = findViewById(R.id.test_lv);
-                final MailAdapter adapter = new MailAdapter(MainActivity.this, R.layout.mail_item, mails);
-                listView.setAdapter(adapter);
-
-                swipeRefreshLayout = findViewById(R.id.swipeLayout);
-                swipeRefreshLayout.setColorSchemeResources(R.color.colorBule);
-                swipeRefreshLayout.setSize(SwipeRefreshLayout.DEFAULT);
-                swipeRefreshLayout.setProgressViewEndTarget(true, 200);
-                swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-                    @Override
-                    public void onRefresh() {
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-//                        try {
-//                            Thread.sleep(500);
-//                        } catch (InterruptedException e) {
-//                            e.printStackTrace();
-//                        }
-                                autoRefresh();
-                            }
-                        }).start();
-                    }
-                });
+            });
 
 
-                listView.setAdapter(new ArrayAdapter<Mail>(this, android.R.layout.simple_list_item_1, mails));
+            listView.setAdapter(new ArrayAdapter<Mail>(this, android.R.layout.simple_list_item_1, mails));
 
-                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                                    @Override
-                                                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                                        Intent intent = new Intent(MainActivity.this, DisplayMessageActivity.class);
-                                                        Bundle bundle = new Bundle();
-                                                        String subject = mails.get((int) id).getSubject();
-                                                        int mail_id = mails.get((int) id).getMail_id();
-                                                        String sender = mails.get((int) id).getFrom();
-                                                        String to = mails.get((int) id).getTo();
-                                                        String content = mails.get((int) id).getContent();
-                                                        int readStat = mails.get((int) id).getReadStat();
-                                                        System.out.println("readStattttt" + " " + readStat);
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                                @Override
+                                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                                    Intent intent = new Intent(MainActivity.this, DisplayMessageActivity.class);
+                                                    Bundle bundle = new Bundle();
+                                                    String subject = mails.get((int) id).getSubject();
+                                                    int mail_id = mails.get((int) id).getMail_id();
+                                                    String sender = mails.get((int) id).getFrom();
+                                                    String to = mails.get((int) id).getTo();
+                                                    String content = mails.get((int) id).getContent();
+                                                    int readStat = mails.get((int) id).getReadStat();
+                                                    System.out.println("readStattttt" + " " + readStat);
 
-                                                        Timestamp time = mails.get((int) id).getTime();
+                                                    Timestamp time = mails.get((int) id).getTime();
 
 
-                                                        bundle.putString("subject", subject);
-                                                        bundle.putInt("mail_id", mail_id);
-                                                        bundle.putString("sender", sender);
-                                                        bundle.putString("to", to);
-                                                        bundle.putString("con\tent", content);
-                                                        bundle.putString("time", time.toString());
-                                                        bundle.putInt("readStat", readStat);
-                                                        //                                              bundle.putSerializable("MainActivity",MainActivity.this);
+                                                    bundle.putString("subject", subject);
+                                                    bundle.putInt("mail_id", mail_id);
+                                                    bundle.putString("sender", sender);
+                                                    bundle.putString("to", to);
+                                                    bundle.putString("con\tent", content);
+                                                    bundle.putString("time", time.toString());
+                                                    bundle.putInt("readStat", readStat);
+                                                    //                                              bundle.putSerializable("MainActivity",MainActivity.this);
 
-                                                        intent.putExtras(bundle);
-                                                        startActivity(intent);
-//                        autoRefresh();
-                                                        //我们需要的内容，跳转页面或显示详细信息
-                                                    }
+                                                    intent.putExtras(bundle);
+                                                    startActivity(intent);
+
+                                                    //我们需要的内容，跳转页面或显示详细信息
                                                 }
-                );
+                                            }
 
-            }
+            );
+
         }
-        else if("friends".equals(command)) {
-            Thread a = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    loginState = getFriend();
-                }
-            });
-            a.start();
-            try {
-                a.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            if (!loginState) {
-                System.out.println("you are not log in");
-                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                startActivity(intent);
-                finish();
-            } else {
-
-                listView = findViewById(R.id.test_lv);
-                final FriendInfoAdapter adapter = new FriendInfoAdapter(MainActivity.this, R.layout.mail_item, friendInfos);
-                listView.setAdapter(adapter);
-                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Intent intent = new Intent(MainActivity.this, FriendinfoActivity.class);
-                        Bundle bundle = new Bundle();
-                        String keywords = friendInfos.get((int) id).getkeywordRst();
-                        String friendId = friendInfos.get((int) id).getFriendId();
-                        bundle.putString("keywords", keywords);
-                        bundle.putString("friendId", friendId);
-                        intent.putExtras(bundle);
-                        startActivity(intent);
-                    }
-                });
-            }
-        }
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -256,110 +211,63 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    private boolean getData(){
+    private boolean checkLogin() {
         try {
-            try {
-                socket = new Socket("47.106.157.18", 9091);
-                ins = socket.getInputStream();
-                os = socket.getOutputStream();
-                oos = new ObjectOutputStream(os);
-                ois=new ObjectInputStream(ins);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            socket = MySocket.getInstance();
+            oos = MySocket.getOos();
+            ois= MySocket.getOis();
             String str1 = "auth," + uuid;
+
             oos.writeObject(str1);
             oos.flush();
 
             // 接受服务器返回的对象;
-            Boolean userlogin = (Boolean)ois.readObject();
 
+            Boolean userlogin = (Boolean)ois.readObject();
+            System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" + userlogin);
             if (!userlogin){
                 return false;
             }else{
+                return true;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return false;
+
+    }
+    private void getData(){
+        try {
                 //根据参数做出不同的变化
                 String str = command;
                 oos.writeObject(str);
                 oos.flush();
 
+                System.out.println("client sent list");
                 mails = (List<Mail>)ois.readObject();
                 System.out.println(mails.size());
 
-                String comm = "quit";
-                oos.writeObject(comm);
-                oos.flush();
-                ois.readObject();
-                ois.close();
-                return true;
-            }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        return false;
-    }
-
-    private boolean getFriend(){
-//        List<FriendInfo> data = new ArrayList<>();
-        try {
-            try {
-                socket = new Socket("47.106.157.18", 9091);
-                ins = socket.getInputStream();
-                os = socket.getOutputStream();
-
-                oos = new ObjectOutputStream(os);
-                ois=new ObjectInputStream(ins);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            String str1 = "auth," + uuid;
-            oos.writeObject(str1);
-            oos.flush();
-
-            // 接受服务器返回的对象;
-            Boolean userlogin = (Boolean)ois.readObject();
-            System.out.println("--------------------------------------------" + userlogin);
-            if (!userlogin){
-                return false;
-            }else{
-                //根据参数做出不同的变化
-                String str = "friends";
-                oos.writeObject(str);
-                oos.flush();
-
-                System.out.println("client sent friends");
-                friendInfos = (List<FriendInfo>)ois.readObject();
-                System.out.println("______________________________________" + friendInfos.size());
-
-                String comm = "quit";
-                oos.writeObject(comm);
-                oos.flush();
-                ois.readObject();
-                ois.close();
-                return true;
-            }
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return false;
     }
 
     public void writeEmail(View view) {
         Intent intent = new Intent(this, SendActivity.class);
         startActivity(intent);
-//        autoRefresh();
     }
 
     public void autoRefresh(){
         getData();
         mHandler.sendEmptyMessage(1);
     }
+
+
+
 
     private static boolean isExit = false;
     Handler mHandler = new Handler() {
@@ -425,6 +333,7 @@ public class MainActivity extends AppCompatActivity
             sp = getSharedPreferences("user_login_state", Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sp.edit();
             editor.remove("uuid");
+            editor.clear();
             editor.commit();
             // sfsdf
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
@@ -445,21 +354,27 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_inbox) {
             // Handle the camera action
         } else if (id == R.id.nav_draftbox) {
-
-
+            Intent intent =new Intent(MainActivity.this, DraftActivity.class);
+            Bundle bundle=new Bundle();
+            bundle.putString("command","draft");
+            intent.putExtras(bundle);
+            startActivity(intent);
 
         } else if (id == R.id.nav_unread) { // 未读
 
 
 
         } else if (id == R.id.nav_sent) {  // 发件箱
-
-
+            Intent intent =new Intent(MainActivity.this, DraftActivity.class);
+            Bundle bundle=new Bundle();
+            bundle.putString("command","sent");
+            intent.putExtras(bundle);
+            startActivity(intent);
 
         } else if (id == R.id.nav_friends) {
             Toast.makeText(MainActivity.this,"friend clicked", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(MainActivity.this, MainActivity.class);
-            intent.putExtra("command", "friends");
+            intent.putExtra("command", "friend");
             startActivity(intent);
         } else if (id == R.id.nav_send) {
 

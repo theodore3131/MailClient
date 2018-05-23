@@ -35,7 +35,7 @@ import static com.example.zhiweixu.mailclient.DraftActivity.ActivityB;
 
 public class DraftMessageActivity extends AppCompatActivity {
     private ExecutorService mThreadPool ;
-    String command;
+
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.receive_menu,menu);
         return true;
@@ -51,8 +51,7 @@ public class DraftMessageActivity extends AppCompatActivity {
     }
 
 
-
-
+    boolean deleStat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,12 +59,8 @@ public class DraftMessageActivity extends AppCompatActivity {
         setContentView(R.layout.activity_display_message);
 
         Intent intent = getIntent();
-
-
         final Bundle bundle=this.getIntent().getExtras();
-        command=bundle.getString("command");
         final String subject=bundle.getString("subject");
-
         TextView subject2=findViewById(R.id.Subject2);
         subject2.setText(subject);
 
@@ -87,7 +82,7 @@ public class DraftMessageActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        toolbar.setTitle(command+" Message");
+        toolbar.setTitle("Receive Message");
         //添加导航位置图标
         toolbar.setNavigationIcon(R.mipmap.ic_action_arrow_back);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -109,42 +104,38 @@ public class DraftMessageActivity extends AppCompatActivity {
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                mThreadPool = Executors.newCachedThreadPool();
-                // 利用线程池直接开启一个线程 & 执行该线程
-                mThreadPool.execute(new Runnable() {
+                Thread a1 = new Thread(new Runnable() {
                     @Override
                     public void run() {
                         try {
                             // 创建Socket对象 & 指定服务端的IP 及 端口号
-                            Socket socket = new Socket("47.106.157.18", 9091);
-                            OutputStream os = socket.getOutputStream();
-                            ObjectOutputStream oos = new ObjectOutputStream(os);
+                            ObjectOutputStream oos = MySocket.getOos();
+                            ObjectInputStream ois = MySocket.getOis();
                             String str = "dele"+' '+bundle.getInt("mail_id");
                             oos.writeObject(str);
-
-
-
-
-                            socket.close();
-
-
-
+                            deleStat = (Boolean)ois.readObject();
+                            System.out.println(deleStat);
                         } catch (IOException e) {
                             e.printStackTrace();
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
                         }
-
                     }
                 });
+                a1.start();
 
+                try {
+                    a1.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 
-
-                Intent intent =new Intent(DraftMessageActivity.this, DraftActivity.class);
-                Bundle bundle=new Bundle();
-                bundle.putString("command",command);
-                intent.putExtras(bundle);
-                startActivity(intent);
-                ActivityB.finish();
-                finish();
+                if (deleStat) {
+                    Intent intent = new Intent(DraftMessageActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    ActivityB.finish();
+                    finish();
+                }
                 return false;
             }
         });
