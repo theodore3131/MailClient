@@ -51,8 +51,7 @@ public class DraftMessageActivity extends AppCompatActivity {
     }
 
 
-
-
+    boolean deleStat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,39 +104,38 @@ public class DraftMessageActivity extends AppCompatActivity {
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                mThreadPool = Executors.newCachedThreadPool();
-                // 利用线程池直接开启一个线程 & 执行该线程
-                mThreadPool.execute(new Runnable() {
+                Thread a1 = new Thread(new Runnable() {
                     @Override
                     public void run() {
                         try {
                             // 创建Socket对象 & 指定服务端的IP 及 端口号
-                            Socket socket = new Socket("47.106.157.18", 9091);
-                            OutputStream os = socket.getOutputStream();
-                            ObjectOutputStream oos = new ObjectOutputStream(os);
+                            ObjectOutputStream oos = MySocket.getOos();
+                            ObjectInputStream ois = MySocket.getOis();
                             String str = "dele"+' '+bundle.getInt("mail_id");
                             oos.writeObject(str);
-
-
-
-
-                            socket.close();
-
-
-
+                            deleStat = (Boolean)ois.readObject();
+                            System.out.println(deleStat);
                         } catch (IOException e) {
                             e.printStackTrace();
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
                         }
-
                     }
                 });
+                a1.start();
 
+                try {
+                    a1.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 
-
-                Intent intent =new Intent(DraftMessageActivity.this, MainActivity.class);
-                startActivity(intent);
-                ActivityB.finish();
-                finish();
+                if (deleStat) {
+                    Intent intent = new Intent(DraftMessageActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    ActivityB.finish();
+                    finish();
+                }
                 return false;
             }
         });

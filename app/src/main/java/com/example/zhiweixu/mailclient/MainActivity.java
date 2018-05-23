@@ -48,9 +48,8 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     static Activity ActivityA;
     ListView listView;
-    Socket socket;
-    InputStream ins;
-    OutputStream os;
+    MySocket socket;
+
     ObjectOutputStream oos;
     ObjectInputStream ois;
 
@@ -69,6 +68,9 @@ public class MainActivity extends AppCompatActivity
     private boolean loginState;
 
     private String uuid;
+
+    public MainActivity() throws IOException {
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,7 +95,7 @@ public class MainActivity extends AppCompatActivity
         Thread a = new Thread(new Runnable() {
             @Override
             public void run() {
-                loginState = getData();
+                loginState = checkLogin();
             }
         });
         a.start();
@@ -140,11 +142,6 @@ public class MainActivity extends AppCompatActivity
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-//                        try {
-//                            Thread.sleep(500);
-//                        } catch (InterruptedException e) {
-//                            e.printStackTrace();
-//                        }
                             autoRefresh();
                         }
                     }).start();
@@ -214,19 +211,11 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    private boolean getData(){
+    private boolean checkLogin() {
         try {
-            try {
-                socket = new Socket("47.106.157.18", 9091);
-                ins = socket.getInputStream();
-                os = socket.getOutputStream();
-
-                oos = new ObjectOutputStream(os);
-                ois=new ObjectInputStream(ins);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
+            socket = MySocket.getInstance();
+            oos = MySocket.getOos();
+            ois= MySocket.getOis();
             String str1 = "auth," + uuid;
 
             oos.writeObject(str1);
@@ -235,12 +224,22 @@ public class MainActivity extends AppCompatActivity
             // 接受服务器返回的对象;
 
             Boolean userlogin = (Boolean)ois.readObject();
-
             System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" + userlogin);
-
             if (!userlogin){
                 return false;
             }else{
+                return true;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return false;
+
+    }
+    private void getData(){
+        try {
                 //根据参数做出不同的变化
                 String str = command;
                 oos.writeObject(str);
@@ -250,20 +249,11 @@ public class MainActivity extends AppCompatActivity
                 mails = (List<Mail>)ois.readObject();
                 System.out.println(mails.size());
 
-                String comm = "quit";
-                oos.writeObject(comm);
-                oos.flush();
-                ois.readObject();
-                ois.close();
-                return true;
-            }
-
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        return false;
     }
 
     public void writeEmail(View view) {

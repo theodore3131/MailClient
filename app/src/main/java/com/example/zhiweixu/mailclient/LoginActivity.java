@@ -126,12 +126,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     @Override
                     public void run() {
                         try {
-                            Socket socket = new Socket("47.106.157.18", 9091);
-                            InputStream ins = socket.getInputStream();
-                            OutputStream os = socket.getOutputStream();
+                            MySocket socket = MySocket.getInstance();
 
-                            ObjectOutputStream oos = new ObjectOutputStream(os);
-                            ObjectInputStream ois=new ObjectInputStream(ins);
+                            ObjectOutputStream oos = MySocket.getOos();
+                            ObjectInputStream ois= MySocket.getOis();
 
                             email = mEmailView.getText().toString();
                             password = mPasswordView.getText().toString();
@@ -171,7 +169,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                 }
 
 
-                            ois.close();
+//                            ois.close();
                         } catch (IOException e) {
                             e.printStackTrace();
                         } catch (ClassNotFoundException e) {

@@ -111,15 +111,12 @@ public class SendActivity extends AppCompatActivity{
                         public void run() {
                             try {
                                 // 创建Socket对象 & 指定服务端的IP 及 端口号
-                                Socket socket = new Socket("47.106.157.18", 9090);
-                                OutputStream os = socket.getOutputStream();
-                                ObjectOutputStream oos = new ObjectOutputStream(os);
+                                ObjectOutputStream oos = MySocket.getOos();
                                 Timestamp time = new Timestamp(new Date().getTime());
                                 mail.setTime(time);
                                 mail.setSendStat(1);
                                 // sender不能为空
                                 oos.writeObject(mail);
-                                socket.close();
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }

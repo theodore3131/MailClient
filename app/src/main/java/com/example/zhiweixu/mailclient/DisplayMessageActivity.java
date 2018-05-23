@@ -52,10 +52,7 @@ public class DisplayMessageActivity extends AppCompatActivity {
         return super.onKeyDown(keyCode, event);
     }
 
-
-
-
-
+    boolean deleStat = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,26 +107,17 @@ public class DisplayMessageActivity extends AppCompatActivity {
                 public void run() {
                     try {
                         // 创建Socket对象 & 指定服务端的IP 及 端口号
-                        Socket socket = new Socket("47.106.157.18", 9091);
-                        OutputStream os = socket.getOutputStream();
-                        ObjectOutputStream oos = new ObjectOutputStream(os);
+
+                        ObjectOutputStream oos = MySocket.getOos();
                         String str = "read"+' '+bundle.getInt("mail_id");
                         oos.writeObject(str);
 
-                        InputStream ins = socket.getInputStream();
-
-                        ObjectInputStream ois=new ObjectInputStream(ins);
+                        ObjectInputStream ois=MySocket.getOis();
                         try{
                             ois.readObject();
                         }catch (ClassNotFoundException e){
 
                         }
-
-
-
-                        socket.close();
-
-
 
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -145,39 +133,38 @@ public class DisplayMessageActivity extends AppCompatActivity {
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                mThreadPool = Executors.newCachedThreadPool();
-                // 利用线程池直接开启一个线程 & 执行该线程
-                mThreadPool.execute(new Runnable() {
+                Thread a1 = new Thread(new Runnable() {
                     @Override
                     public void run() {
                         try {
                             // 创建Socket对象 & 指定服务端的IP 及 端口号
-                            Socket socket = new Socket("47.106.157.18", 9091);
-                            OutputStream os = socket.getOutputStream();
-                            ObjectOutputStream oos = new ObjectOutputStream(os);
+                            ObjectOutputStream oos = MySocket.getOos();
+                            ObjectInputStream ois = MySocket.getOis();
                             String str = "dele"+' '+bundle.getInt("mail_id");
                             oos.writeObject(str);
-
-
-
-
-                            socket.close();
-
-
-
+                            deleStat = (Boolean)ois.readObject();
+                            System.out.println(deleStat);
                         } catch (IOException e) {
                             e.printStackTrace();
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
                         }
-
                     }
                 });
+                a1.start();
 
+                try {
+                    a1.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 
-
-                Intent intent =new Intent(DisplayMessageActivity.this, MainActivity.class);
-                startActivity(intent);
-                ActivityA.finish();
-                finish();
+                if (deleStat) {
+                    Intent intent = new Intent(DisplayMessageActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    ActivityA.finish();
+                    finish();
+                }
                 return false;
             }
         });

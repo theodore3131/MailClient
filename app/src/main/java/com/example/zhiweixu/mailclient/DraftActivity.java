@@ -44,9 +44,8 @@ import JavaBean.Entity.MailAdapter;
 public class DraftActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     ListView listView;
-    Socket socket;
-    InputStream ins;
-    OutputStream os;
+    MySocket socket;
+
     ObjectOutputStream oos;
     ObjectInputStream ois;
     static Activity ActivityB;
@@ -150,28 +149,20 @@ public class DraftActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
-
-
-
     }
 
     private List<Mail> getData(){
         List<Mail> data = new ArrayList<Mail>();
         try {
             try {
-                socket = new Socket("47.106.157.18", 9091);
-                ins = socket.getInputStream();
-                os = socket.getOutputStream();
-
-                oos = new ObjectOutputStream(os);
-                ois=new ObjectInputStream(ins);
+                oos = MySocket.getOos();
+                ois= MySocket.getOis();
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
             //根据参数做出不同的变化
-            String str = command;
+            String str = "draft";
             oos.writeObject(str);
             oos.flush();
 
@@ -179,11 +170,11 @@ public class DraftActivity extends AppCompatActivity
             data = (List<Mail>)ois.readObject();
             System.out.println(data.size());
 
-            String comm = "quit";
-            oos.writeObject(comm);
-            oos.flush();
-            ois.readObject();
-            ois.close();
+//            String comm = "quit";
+//            oos.writeObject(comm);
+//            oos.flush();
+//            ois.readObject();
+//            ois.close();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
@@ -196,18 +187,6 @@ public class DraftActivity extends AppCompatActivity
         Intent intent = new Intent(this, SendActivity.class);
         startActivity(intent);
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
     @Override
 
