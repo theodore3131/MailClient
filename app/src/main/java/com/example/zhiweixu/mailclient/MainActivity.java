@@ -41,6 +41,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
+import JavaBean.Entity.FriendInfo;
+import JavaBean.Entity.FriendInfoAdapter;
 import JavaBean.Entity.Mail;
 import JavaBean.Entity.MailAdapter;
 
@@ -52,6 +54,7 @@ public class MainActivity extends AppCompatActivity
 
     ObjectOutputStream oos;
     ObjectInputStream ois;
+    private List<FriendInfo> friendInfos;
 
     // 用户登录状态记录
     private SharedPreferences sp;
@@ -82,110 +85,145 @@ public class MainActivity extends AppCompatActivity
         uuid = sp.getString("uuid", null);
 
 
-        if(getIntent() != null) {
-            command = getIntent().getStringExtra("commandExtra");
-        }
-
+    
         command = "list";
+
+        if(getIntent().getStringExtra("command")!=null) {
+            command = getIntent().getStringExtra("command");
+        }
 
         System.out.println(command);
 
         ActivityA = this;
-
-        Thread a = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                loginState = checkLogin();
-            }
-        });
-        a.start();
-
-        try {
-            a.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-
-        if (!loginState){
-            System.out.println("you are not log in");
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(intent);
-            finish();
-        }
-
-        else {
-            Thread a1 = new Thread(new Runnable() {
+        if("list".equals(command)) {
+            Thread a = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    autoRefresh();
+                    loginState = checkLogin();
                 }
             });
-            a1.start();
+            a.start();
 
             try {
-                a1.join();
+                a.join();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            listView = findViewById(R.id.test_lv);
-            final MailAdapter adapter = new MailAdapter(MainActivity.this, R.layout.mail_item, mails);
-            listView.setAdapter(adapter);
 
-            swipeRefreshLayout = findViewById(R.id.swipeLayout);
-            swipeRefreshLayout.setColorSchemeResources(R.color.colorBule);
-            swipeRefreshLayout.setSize(SwipeRefreshLayout.DEFAULT);
-            swipeRefreshLayout.setProgressViewEndTarget(true, 200);
-            swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+
+            if (!loginState){
+                System.out.println("you are not log in");
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+            }
+
+            else {
+                Thread a1 = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        autoRefresh();
+                    }
+                });
+                a1.start();
+
+                try {
+                    a1.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                listView = findViewById(R.id.test_lv);
+                final MailAdapter adapter = new MailAdapter(MainActivity.this, R.layout.mail_item, mails);
+                listView.setAdapter(adapter);
+
+                swipeRefreshLayout = findViewById(R.id.swipeLayout);
+                swipeRefreshLayout.setColorSchemeResources(R.color.colorBule);
+                swipeRefreshLayout.setSize(SwipeRefreshLayout.DEFAULT);
+                swipeRefreshLayout.setProgressViewEndTarget(true, 200);
+                swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                autoRefresh();
+                            }
+                        }).start();
+                    }
+                });
+
+
+                listView.setAdapter(new ArrayAdapter<Mail>(this, android.R.layout.simple_list_item_1, mails));
+
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                                    @Override
+                                                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                                        Intent intent = new Intent(MainActivity.this, DisplayMessageActivity.class);
+                                                        Bundle bundle = new Bundle();
+                                                        String subject = mails.get((int) id).getSubject();
+                                                        int mail_id = mails.get((int) id).getMail_id();
+                                                        String sender = mails.get((int) id).getFrom();
+                                                        String to = mails.get((int) id).getTo();
+                                                        String content = mails.get((int) id).getContent();
+                                                        int readStat = mails.get((int) id).getReadStat();
+                                                        System.out.println("readStat" + " " + readStat);
+
+                                                        Timestamp time = mails.get((int) id).getTime();
+
+
+                                                        bundle.putString("subject", subject);
+                                                        bundle.putInt("mail_id", mail_id);
+                                                        bundle.putString("sender", sender);
+                                                        bundle.putString("to", to);
+                                                        bundle.putString("content", content);
+                                                        bundle.putString("time", time.toString());
+                                                        bundle.putInt("readStat", readStat);
+                                                        //                                              bundle.putSerializable("MainActivity",MainActivity.this);
+
+                                                        intent.putExtras(bundle);
+                                                        startActivity(intent);
+
+                                                        //我们需要的内容，跳转页面或显示详细信息
+                                                    }
+                                                }
+
+                );
+
+            }
+        }
+        else if("friends".equals(command)) {
+            Thread a = new Thread(new Runnable() {
                 @Override
-                public void onRefresh() {
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            autoRefresh();
-                        }
-                    }).start();
+                public void run() {
+                    friendInfos = getFriend();
                 }
             });
+            a.start();
+            try {
+                a.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
 
-            listView.setAdapter(new ArrayAdapter<Mail>(this, android.R.layout.simple_list_item_1, mails));
-
+            listView = findViewById(R.id.test_lv);
+            final FriendInfoAdapter adapter = new FriendInfoAdapter(MainActivity.this, R.layout.mail_item, friendInfos);
+            listView.setAdapter(adapter);
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                                @Override
-                                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                                    Intent intent = new Intent(MainActivity.this, DisplayMessageActivity.class);
-                                                    Bundle bundle = new Bundle();
-                                                    String subject = mails.get((int) id).getSubject();
-                                                    int mail_id = mails.get((int) id).getMail_id();
-                                                    String sender = mails.get((int) id).getFrom();
-                                                    String to = mails.get((int) id).getTo();
-                                                    String content = mails.get((int) id).getContent();
-                                                    int readStat = mails.get((int) id).getReadStat();
-                                                    System.out.println("readStat" + " " + readStat);
-
-                                                    Timestamp time = mails.get((int) id).getTime();
-
-
-                                                    bundle.putString("subject", subject);
-                                                    bundle.putInt("mail_id", mail_id);
-                                                    bundle.putString("sender", sender);
-                                                    bundle.putString("to", to);
-                                                    bundle.putString("content", content);
-                                                    bundle.putString("time", time.toString());
-                                                    bundle.putInt("readStat", readStat);
-                                                    //                                              bundle.putSerializable("MainActivity",MainActivity.this);
-
-                                                    intent.putExtras(bundle);
-                                                    startActivity(intent);
-
-                                                    //我们需要的内容，跳转页面或显示详细信息
-                                                }
-                                            }
-
-            );
-
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Intent intent = new Intent(MainActivity.this, FriendinfoActivity.class);
+                    Bundle bundle = new Bundle();
+                    String keywords = friendInfos.get((int) id).getkeywordRst();
+                    String friendId = friendInfos.get((int) id).getFriendId();
+                    bundle.putString("keywords", keywords);
+                    bundle.putString("friendId", friendId);
+                    intent.putExtras(bundle);
+                    startActivity(intent);
+                }
+            });
         }
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -254,6 +292,33 @@ public class MainActivity extends AppCompatActivity
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
+    }
+
+    private List<FriendInfo> getFriend(){
+        List<FriendInfo> data = new ArrayList<>();
+        try {
+            try {
+
+                oos = MySocket.getOos();
+                ois= MySocket.getOis();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            String str = "friends";
+            oos.writeObject(str);
+            oos.flush();
+
+            System.out.println("client sent friends");
+            data = (List<FriendInfo>)ois.readObject();
+            System.out.println(data.size());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return data;
     }
 
     public void writeEmail(View view) {
@@ -374,7 +439,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_friends) {
             Toast.makeText(MainActivity.this,"friend clicked", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(MainActivity.this, MainActivity.class);
-            intent.putExtra("command", "friend");
+            intent.putExtra("command", "friends");
             startActivity(intent);
         } else if (id == R.id.nav_send) {
 

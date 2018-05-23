@@ -1,5 +1,7 @@
 package JavaBean.Entity;
 
+import java.io.Serializable;
+
 /**
  * @author YukonChen
  * 用户信息类
@@ -10,7 +12,7 @@ package JavaBean.Entity;
  *
  * 所以用用户信息类将朋友类（朋友id）和关键字结果（备注名|用户名|朋友id）封装起来
  */
-public class FriendInfo {
+public class FriendInfo implements Serializable {
 
     private String friendId;
     private String keywordRst;

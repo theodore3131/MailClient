@@ -1,6 +1,7 @@
 package com.example.zhiweixu.mailclient;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -30,6 +31,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import JavaBean.Entity.Mail;
+
+import static com.example.zhiweixu.mailclient.MainActivity.ActivityA;
 
 public class SendActivity extends AppCompatActivity{
 
@@ -111,7 +114,9 @@ public class SendActivity extends AppCompatActivity{
                         public void run() {
                             try {
                                 // 创建Socket对象 & 指定服务端的IP 及 端口号
-                                ObjectOutputStream oos = MySocket.getOos();
+                                Socket socket = new Socket("47.106.157.18", 9090);
+                                OutputStream os = socket.getOutputStream();
+                                ObjectOutputStream oos = new ObjectOutputStream(os);
                                 Timestamp time = new Timestamp(new Date().getTime());
                                 mail.setTime(time);
                                 mail.setSendStat(1);
@@ -124,9 +129,12 @@ public class SendActivity extends AppCompatActivity{
                         }
                     });
 
-                    String mess = "" + receiver + "," + subject + "," + content;
+                    String mess = "send Successfully";
                     Toast.makeText(SendActivity.this, mess, Toast.LENGTH_SHORT).show();
-                    break;
+                    Intent intent = new Intent(SendActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    ActivityA.finish();
+                    finish();
             }
             return false;
             }
