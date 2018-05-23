@@ -104,6 +104,7 @@ public class MainActivity extends AppCompatActivity
             e.printStackTrace();
         }
 
+
         if (!loginState){
             System.out.println("you are not log in");
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
@@ -112,6 +113,19 @@ public class MainActivity extends AppCompatActivity
         }
 
         else {
+            Thread a1 = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    autoRefresh();
+                }
+            });
+            a1.start();
+
+            try {
+                a1.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             listView = findViewById(R.id.test_lv);
             final MailAdapter adapter = new MailAdapter(MainActivity.this, R.layout.mail_item, mails);
             listView.setAdapter(adapter);
@@ -350,16 +364,22 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_inbox) {
             // Handle the camera action
         } else if (id == R.id.nav_draftbox) {
-
-
+            Intent intent =new Intent(MainActivity.this, DraftActivity.class);
+            Bundle bundle=new Bundle();
+            bundle.putString("command","draft");
+            intent.putExtras(bundle);
+            startActivity(intent);
 
         } else if (id == R.id.nav_unread) { // 未读
 
 
 
         } else if (id == R.id.nav_sent) {  // 发件箱
-
-
+            Intent intent =new Intent(MainActivity.this, DraftActivity.class);
+            Bundle bundle=new Bundle();
+            bundle.putString("command","sent");
+            intent.putExtras(bundle);
+            startActivity(intent);
 
         } else if (id == R.id.nav_friends) {
             Toast.makeText(MainActivity.this,"friend clicked", Toast.LENGTH_SHORT).show();
