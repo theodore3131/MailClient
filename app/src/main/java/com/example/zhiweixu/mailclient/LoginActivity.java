@@ -328,6 +328,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             startActivity(intent);
             finish();
 
+
+//            Intent intent = new Intent(this, MainActivity.class);
+//            startActivity(intent);
+
             //先注释掉
 //            mAuthTask.execute((Void) null);
         }
